@@ -1,0 +1,24 @@
+.Ball {
+  height: 400px;
+  width: 400px;
+  clip-path: circle(200px at center);
+  position: relative;
+  margin: 0 auto;
+}
+
+.NorthPole, .SouthPole {
+  height: 200px;
+  width: 400px;
+}
+
+.NorthPole {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.SouthPole {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}

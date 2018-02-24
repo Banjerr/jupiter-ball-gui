@@ -2,28 +2,31 @@ import React, { Component } from 'react';
 import Ball from '../Ball/Ball.js';
 import './Controls.css';
 import FontAwesome from 'react-fontawesome';
-import { SwatchesPicker } from 'react-color';
+import { CirclePicker } from 'react-color';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import Slider from 'rc-slider';
+import 'rc-slider/assets/index.css';
 
-// a little function to help us with reordering the result
+const createSliderWithTooltip = Slider.createSliderWithTooltip;
+const SliderTooltip = createSliderWithTooltip(Slider);
+
 const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
-  console.log(result);
+
   return result;
 };
 
 const grid = 8;
 
-const getItemStyle = (isDragging, draggableStyle) => ({
-  // some basic styles to make the items look a bit nicer
+const getItemStyle = (isDragging, draggableStyle, itemColor) => ({
   userSelect: 'none',
   padding: grid * 2,
   margin: `0 ${grid}px 0 0`,
 
   // change background colour if dragging
-  background: isDragging ? 'lightgreen' : 'grey',
+  background: isDragging ? 'lightgreen' : itemColor,
 
   // styles we need to apply on draggables
   ...draggableStyle,
@@ -45,7 +48,8 @@ class Controls extends Component {
       colorList: ['color1'],
       color1: {
         color: '#ffffff',
-        duration: '2000'
+        duration: '2000',
+        id: 'color1'
       }
     }
 
@@ -83,7 +87,8 @@ class Controls extends Component {
       returnObj['colorList'].push(newPropName);
       returnObj[newPropName] = {
         color: '#ffffff',
-        duration: '2000'
+        duration: '2000',
+        id: newPropName
       };
       return returnObj;
     }
@@ -110,12 +115,19 @@ class Controls extends Component {
   }
 
   handleChangeComplete = (name) => (color) => {
-    console.log(color.hex);
-    console.log(name);
-
     let stateObject = function() {
       let returnObj = this.state;
       returnObj[name].color = color.hex;
+      return returnObj;
+    };
+    
+    this.setState(stateObject);
+  }
+
+  handleTimeChange = (name) => (value) => {
+    let stateObject = function() {
+      let returnObj = this.state;
+      returnObj[name].duration = value;
       return returnObj;
     };
     
@@ -156,7 +168,8 @@ class Controls extends Component {
                             {...provided.dragHandleProps}
                             style={getItemStyle(
                               snapshot.isDragging,
-                              provided.draggableProps.style
+                              provided.draggableProps.style,
+                              this.state[item].color
                             )}
                           >                            
                             <header>
@@ -172,9 +185,16 @@ class Controls extends Component {
                                 </button>
                               </label>
                             </header>
-                            <SwatchesPicker 
+                            
+                            <CirclePicker 
                               color={this.state[item].color}
                               onChangeComplete={ this.handleChangeComplete(item) }
+                            />
+
+                            <h3>Time (in milliseconds)</h3>
+                            <SliderTooltip 
+                              max={60}
+                              onAfterChange={this.handleTimeChange(item)}
                             />
                           </div>
                           {provided.placeholder}
@@ -189,7 +209,7 @@ class Controls extends Component {
           </DragDropContext>
         </section>
 
-        <Ball />
+        <Ball colors={Array.from(this.state.colorList, color => color = this.state[color])} />
       </div>
     );
   }
