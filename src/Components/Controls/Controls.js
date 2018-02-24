@@ -3,6 +3,38 @@ import Ball from '../Ball/Ball.js';
 import './Controls.css';
 import FontAwesome from 'react-fontawesome';
 import { SwatchesPicker } from 'react-color';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+
+// a little function to help us with reordering the result
+const reorder = (list, startIndex, endIndex) => {
+  const result = Array.from(list);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+  console.log(result);
+  return result;
+};
+
+const grid = 8;
+
+const getItemStyle = (isDragging, draggableStyle) => ({
+  // some basic styles to make the items look a bit nicer
+  userSelect: 'none',
+  padding: grid * 2,
+  margin: `0 ${grid}px 0 0`,
+
+  // change background colour if dragging
+  background: isDragging ? 'lightgreen' : 'grey',
+
+  // styles we need to apply on draggables
+  ...draggableStyle,
+});
+
+const getListStyle = isDraggingOver => ({
+  background: isDraggingOver ? 'lightblue' : 'lightgrey',
+  display: 'flex',
+  padding: grid,
+  overflow: 'auto',
+});
 
 class Controls extends Component {
   constructor(props) {
@@ -13,20 +45,37 @@ class Controls extends Component {
       colorList: ['color1'],
       color1: {
         color: '#ffffff',
-        duration: '2000',
-        orderNumber: 1
+        duration: '2000'
       }
     }
+
+    this.onDragEnd = this.onDragEnd.bind(this);
+  }
+
+  onDragEnd(result) {
+    // dropped outside the list
+    if (!result.destination) {
+      return;
+    }
+
+    const items = reorder(
+      this.state.colorList,
+      result.source.index,
+      result.destination.index
+    );
+
+    this.setState({
+      colorList: items
+    });
   }
 
   configureJupiter = (e) => {
     e.preventDefault();
-    console.log('form')
   }  
 
   addColor = () => {
     let currentColorNumber = this.state.colorNumber,
-      newPropName = 'color' + (currentColorNumber + 1);
+      newPropName = 'color' + (currentColorNumber + 1) + Date.now();
 
     let stateObject = function() {
       let returnObj = this.state;
@@ -34,8 +83,7 @@ class Controls extends Component {
       returnObj['colorList'].push(newPropName);
       returnObj[newPropName] = {
         color: '#ffffff',
-        duration: '2000',
-        orderNumber: currentColorNumber + 1
+        duration: '2000'
       };
       return returnObj;
     }
@@ -80,9 +128,6 @@ class Controls extends Component {
         className="Controls">
         <section>
           <p>Number of colors: {this.state.colorNumber}</p>
-        </section>
-        <form 
-          onSubmit={this.configureJupiter}>
 
           <label htmlFor="add-color">Add color
             <button
@@ -92,35 +137,57 @@ class Controls extends Component {
                 name='plus' 
               />
             </button>
-          </label>    
-
-          {
-            this.state.colorList.map((colorName, i) => 
-              <section 
-                key={i} 
-                id={colorName}
-              >
-                <header>
-                  <h3>#{i + 1}</h3>
-                  <label 
-                    htmlFor="remove-color">Remove color
-                    <button
-                      onClick={() => this.removeColor(colorName, i)} 
-                    >
-                      <FontAwesome                         
-                        name='minus' 
-                      />
-                    </button>
-                  </label>
-                </header>
-                <SwatchesPicker 
-                  color={this.state[colorName].color}
-                  onChangeComplete={ this.handleChangeComplete(colorName) }
-                />
-              </section>
-            )
-          }
-        </form>
+          </label> 
+          
+          <DragDropContext onDragEnd={this.onDragEnd}>
+            <Droppable droppableId="droppable" direction="horizontal">
+              {(provided, snapshot) => (
+                <div
+                  ref={provided.innerRef}
+                  style={getListStyle(snapshot.isDraggingOver)}
+                >
+                  {this.state.colorList.map((item, index) => (
+                    <Draggable key={index} draggableId={index} index={index}>
+                      {(provided, snapshot) => (
+                        <div>
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={getItemStyle(
+                              snapshot.isDragging,
+                              provided.draggableProps.style
+                            )}
+                          >                            
+                            <header>
+                              <h3>Color #{index + 1}</h3>
+                              <label 
+                                htmlFor="remove-color">Remove color
+                                <button
+                                  onClick={() => this.removeColor(item, index)} 
+                                >
+                                  <FontAwesome                         
+                                    name='minus' 
+                                  />
+                                </button>
+                              </label>
+                            </header>
+                            <SwatchesPicker 
+                              color={this.state[item].color}
+                              onChangeComplete={ this.handleChangeComplete(item) }
+                            />
+                          </div>
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </section>
 
         <Ball />
       </div>
