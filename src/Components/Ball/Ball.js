@@ -10,11 +10,11 @@ class Ball extends Component {
     this.props.colors.map((color) => totalTime = totalTime + color.duration);
 
     this.props.colors.map((color, index) => 
-      styleObject += `${index === 0 ? 0 : (color.duration / totalTime) * 100}% { background-color: ${color.color}; }`
+      styleObject += `${index === 0 ? 0 : (100 - color.duration)}% { background-color: ${color.color}; }`
     );
 
     styleObject += `100% { background-color: ${this.props.colors[0].color}; }}`;
-    
+    console.log(styleObject);
     return styleObject;
   }
 
