@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import Ball from '../Ball/Ball.js';
 import './Controls.css';
 import FontAwesome from 'react-fontawesome';
+import { SwatchesPicker } from 'react-color';
 
 class Controls extends Component {
   constructor(props) {
@@ -59,31 +61,68 @@ class Controls extends Component {
     this.setState(stateObject);
   }
 
+  handleChangeComplete = (name) => (color) => {
+    console.log(color.hex);
+    console.log(name);
+
+    let stateObject = function() {
+      let returnObj = this.state;
+      returnObj[name].color = color.hex;
+      return returnObj;
+    };
+    
+    this.setState(stateObject);
+  }
+
   render() {
     return (
-      <div className="Controls">
+      <div 
+        className="Controls">
         <section>
           <p>Number of colors: {this.state.colorNumber}</p>
         </section>
-        <form onSubmit={this.configureJupiter}>
+        <form 
+          onSubmit={this.configureJupiter}>
+
           <label htmlFor="add-color">Add color
-            <button>
-              <FontAwesome onClick={this.addColor} name='plus' />
+            <button
+              onClick={this.addColor} 
+            >
+              <FontAwesome                 
+                name='plus' 
+              />
             </button>
-          </label>          
+          </label>    
 
           {
-            this.state.colorList.map((color, i) => 
-              <section key={i} className={color}>
-                <label htmlFor="remove-color">Remove color
-                  <button>
-                    <FontAwesome onClick={() => this.removeColor(color, i)} name='minus' />
-                  </button>
-                </label>
+            this.state.colorList.map((colorName, i) => 
+              <section 
+                key={i} 
+                id={colorName}
+              >
+                <header>
+                  <h3>#{i + 1}</h3>
+                  <label 
+                    htmlFor="remove-color">Remove color
+                    <button
+                      onClick={() => this.removeColor(colorName, i)} 
+                    >
+                      <FontAwesome                         
+                        name='minus' 
+                      />
+                    </button>
+                  </label>
+                </header>
+                <SwatchesPicker 
+                  color={this.state[colorName].color}
+                  onChangeComplete={ this.handleChangeComplete(colorName) }
+                />
               </section>
             )
           }
         </form>
+
+        <Ball />
       </div>
     );
   }
