@@ -6,6 +6,7 @@ import { CirclePicker } from 'react-color';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
+import NumericInput from 'react-numeric-input';
 
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const SliderTooltip = createSliderWithTooltip(Slider);
@@ -44,11 +45,12 @@ class Controls extends Component {
     super(props);
     
     this.state = {
+      duration: 6,
       colorNumber: 1,
       colorList: ['color1'],
       color1: {
         color: '#ffffff',
-        duration: '2000',
+        duration: 0,
         id: 'color1'
       }
     }
@@ -87,7 +89,7 @@ class Controls extends Component {
       returnObj['colorList'].push(newPropName);
       returnObj[newPropName] = {
         color: '#ffffff',
-        duration: '2000',
+        duration: 0,
         id: newPropName
       };
       return returnObj;
@@ -134,13 +136,23 @@ class Controls extends Component {
     this.setState(stateObject);
   }
 
+  handleDurationChange = (name) => (value, strValue, input) => {
+    console.log(value);
+    console.log(name);
+    this.setState({
+      duration: value
+    });
+  }
+
   render() {
     return (
       <div 
         className="Controls">
         <section>
           <p>Number of colors: {this.state.colorNumber}</p>
-
+          <label htmlFor="sequence-duration">Duration in seconds:
+            <NumericInput onChange={this.handleDurationChange('NorthPole')} min={1} max={6} value={this.state.duration}/>
+          </label>
           <label htmlFor="add-color">Add color
             <button
               onClick={this.addColor} 
@@ -191,9 +203,10 @@ class Controls extends Component {
                               onChangeComplete={ this.handleChangeComplete(item) }
                             />
 
-                            <h3>Time (in milliseconds)</h3>
+                            <h3>Percentage of time: {this.state[item].duration}%</h3>
                             <SliderTooltip 
-                              max={60}
+                              max={100}
+                              min={1}
                               onAfterChange={this.handleTimeChange(item)}
                             />
                           </div>
@@ -209,7 +222,10 @@ class Controls extends Component {
           </DragDropContext>
         </section>
 
-        <Ball colors={Array.from(this.state.colorList, color => color = this.state[color])} />
+        <Ball 
+          colors={Array.from(this.state.colorList, color => color = this.state[color])}
+          duration={this.state.duration}
+        />
       </div>
     );
   }

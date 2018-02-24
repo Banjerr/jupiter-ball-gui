@@ -8,7 +8,8 @@
     "react-beautiful-dnd": "^5.0.0",
     "react-color": "^2.13.8",
     "react-dom": "^16.2.0",
-    "react-fontawesome": "^1.6.1"
+    "react-fontawesome": "^1.6.1",
+    "react-numeric-input": "^2.2.3"
   },
   "devDependencies": {
     "react-scripts": "1.1.1"
