@@ -7,27 +7,56 @@ class Controls extends Component {
     super(props);
     
     this.state = {
-      colorNumber: props.initialColorNumber ?
-        props.initialColorNumber : 1
+      colorNumber: 1,
+      colorList: ['color1'],
+      color1: {
+        color: '#ffffff',
+        duration: '2000',
+        orderNumber: 1
+      }
     }
   }
 
   configureJupiter = (e) => {
     e.preventDefault();
     console.log('form')
-  }
+  }  
 
   addColor = () => {
-    this.setState({
-      colorNumber: this.state.colorNumber + 1
-    })
+    let currentColorNumber = this.state.colorNumber,
+      newPropName = 'color' + (currentColorNumber + 1);
+
+    let stateObject = function() {
+      let returnObj = this.state;
+      returnObj['colorNumber'] = currentColorNumber + 1;
+      returnObj['colorList'].push(newPropName);
+      returnObj[newPropName] = {
+        color: '#ffffff',
+        duration: '2000',
+        orderNumber: currentColorNumber + 1
+      };
+      return returnObj;
+    }
+  
+    this.setState( stateObject ); 
   }
 
-  removeColor = () => {
-    this.setState({
-      colorNumber: this.state.colorNumber > 0 ? 
-        this.state.colorNumber - 1 : 0
-    })
+  removeColor = (color, index) => {
+    let currentColorNumber = this.state.colorNumber,
+      currentColorList = this.state.colorList;
+
+    currentColorList.splice(index, 1);
+
+    let stateObject = function() {
+      let returnObj = this.state;
+      returnObj['colorNumber'] = currentColorNumber > 0 ? 
+        currentColorNumber - 1 : 0;
+      returnObj['colorList'] = currentColorList;
+      returnObj[color] = undefined;
+      return returnObj;
+    };
+    
+    this.setState(stateObject);
   }
 
   render() {
@@ -41,12 +70,19 @@ class Controls extends Component {
             <button>
               <FontAwesome onClick={this.addColor} name='plus' />
             </button>
-          </label>
-          <label htmlFor="remove-color">Remove color
-            <button>
-              <FontAwesome onClick={this.removeColor} name='minus' />
-            </button>
-          </label>
+          </label>          
+
+          {
+            this.state.colorList.map((color, i) => 
+              <section key={i} className={color}>
+                <label htmlFor="remove-color">Remove color
+                  <button>
+                    <FontAwesome onClick={() => this.removeColor(color, i)} name='minus' />
+                  </button>
+                </label>
+              </section>
+            )
+          }
         </form>
       </div>
     );
