@@ -1,4 +1,6 @@
 const injectStyle = (style) => {
+  if (!style) return;
+  
   const styleElement = document.createElement('style');
   let styleSheet = null;
 

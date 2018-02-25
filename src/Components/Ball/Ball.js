@@ -4,14 +4,16 @@ import injectStyle from './injectStyle';
 
 class Ball extends Component {
   createHemisphereStyle = () => {
+    if (!this.props.colors.length) return;
+    
     let styleObject = `@-webkit-keyframes pulse {`,
-      totalTime = 0;
+      nextStartingPoint;
 
-    this.props.colors.map((color) => totalTime = totalTime + color.duration);
-
-    this.props.colors.map((color, index) => 
-      styleObject += `${index === 0 ? 0 : (100 - color.duration)}% { background-color: ${color.color}; }`
-    );
+    this.props.colors.map((color, index) => {
+      nextStartingPoint = ((color.duration / 1000) / this.props.duration) * 100;
+      console.log('next point', nextStartingPoint);
+      return styleObject += `${index === 0 ? 0 : nextStartingPoint}% { background-color: ${color.color}; }`
+    });
 
     styleObject += `100% { background-color: ${this.props.colors[0].color}; }}`;
     console.log(styleObject);

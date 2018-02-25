@@ -6,7 +6,6 @@ import { CirclePicker } from 'react-color';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
-import NumericInput from 'react-numeric-input';
 
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const SliderTooltip = createSliderWithTooltip(Slider);
@@ -45,7 +44,7 @@ class Controls extends Component {
     super(props);
     
     this.state = {
-      duration: 6,
+      duration: 0,
       colorNumber: 1,
       colorList: ['color1'],
       color1: {
@@ -109,6 +108,8 @@ class Controls extends Component {
       returnObj['colorNumber'] = currentColorNumber > 0 ? 
         currentColorNumber - 1 : 0;
       returnObj['colorList'] = currentColorList;
+      returnObj['duration'] = returnObj['duration'] - (returnObj[color].duration / 1000);
+
       returnObj[color] = undefined;
       return returnObj;
     };
@@ -116,7 +117,7 @@ class Controls extends Component {
     this.setState(stateObject);
   }
 
-  handleChangeComplete = (name) => (color) => {
+  handleColorChange = (name) => (color) => {
     let stateObject = function() {
       let returnObj = this.state;
       returnObj[name].color = color.hex;
@@ -127,21 +128,20 @@ class Controls extends Component {
   }
 
   handleTimeChange = (name) => (value) => {
+    if (this.state[name].duration === value) return;
+
     let stateObject = function() {
       let returnObj = this.state;
+
+      returnObj['duration'] = returnObj[name].duration > value ?
+        returnObj['duration'] - ((returnObj[name].duration - value) / 1000) :
+        returnObj['duration'] + ((value - returnObj[name].duration) / 1000);
+
       returnObj[name].duration = value;
       return returnObj;
-    };
-    
-    this.setState(stateObject);
-  }
+    }; 
 
-  handleDurationChange = (name) => (value, strValue, input) => {
-    console.log(value);
-    console.log(name);
-    this.setState({
-      duration: value
-    });
+    this.setState(stateObject);
   }
 
   render() {
@@ -150,9 +150,8 @@ class Controls extends Component {
         className="Controls">
         <section>
           <p>Number of colors: {this.state.colorNumber}</p>
-          <label htmlFor="sequence-duration">Duration in seconds:
-            <NumericInput onChange={this.handleDurationChange('NorthPole')} min={1} max={6} value={this.state.duration}/>
-          </label>
+          <p>Length of sequence (in seconds): {this.state.duration}</p>
+
           <label htmlFor="add-color">Add color
             <button
               onClick={this.addColor} 
@@ -200,12 +199,12 @@ class Controls extends Component {
                             
                             <CirclePicker 
                               color={this.state[item].color}
-                              onChangeComplete={ this.handleChangeComplete(item) }
+                              onChangeComplete={ this.handleColorChange(item) }
                             />
 
-                            <h3>Percentage of time: {this.state[item].duration}%</h3>
+                            <h3>Time in milliseconds: {this.state[item].duration}</h3>
                             <SliderTooltip 
-                              max={100}
+                              max={1000}
                               min={1}
                               onAfterChange={this.handleTimeChange(item)}
                             />
