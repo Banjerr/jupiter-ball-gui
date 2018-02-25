@@ -10,13 +10,17 @@ class Ball extends Component {
       nextStartingPoint;
 
     this.props.colors.map((color, index) => {
-      nextStartingPoint = ((color.duration / 1000) / this.props.duration) * 100;
-      console.log('next point', nextStartingPoint);
+      if (!color.duration) return true;
+
+      nextStartingPoint = index > 1 ?
+        (((color.duration / 1000) / this.props.duration) * 100) + nextStartingPoint :
+        ((color.duration / 1000) / this.props.duration) * 100;
+
       return styleObject += `${index === 0 ? 0 : nextStartingPoint}% { background-color: ${color.color}; }`
     });
 
     styleObject += `100% { background-color: ${this.props.colors[0].color}; }}`;
-    console.log(styleObject);
+
     return styleObject;
   }
 
@@ -31,7 +35,7 @@ class Ball extends Component {
     )
     
     let SouthPole = () => (
-      <section className="SouthPole">
+      <section style={{WebkitAnimation: `pulse ${this.props.duration}s ease infinite`}} className="SouthPole">
         
       </section>
     )

@@ -10,6 +10,8 @@ import 'rc-slider/assets/index.css';
 const createSliderWithTooltip = Slider.createSliderWithTooltip;
 const SliderTooltip = createSliderWithTooltip(Slider);
 
+const round = (value) => Number(Math.round(value+'e2')+'e-2');
+
 const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
@@ -149,8 +151,9 @@ class Controls extends Component {
       <div 
         className="Controls">
         <section>
+          <h3>NorthPole</h3>
           <p>Number of colors: {this.state.colorNumber}</p>
-          <p>Length of sequence (in seconds): {this.state.duration}</p>
+          <p>Length of sequence (in seconds): {round(this.state.duration)}</p>
 
           <label htmlFor="add-color">Add color
             <button
@@ -163,7 +166,7 @@ class Controls extends Component {
           </label> 
           
           <DragDropContext onDragEnd={this.onDragEnd}>
-            <Droppable droppableId="droppable" direction="horizontal">
+            <Droppable droppableId="north" direction="horizontal">
               {(provided, snapshot) => (
                 <div
                   ref={provided.innerRef}
@@ -225,6 +228,80 @@ class Controls extends Component {
           colors={Array.from(this.state.colorList, color => color = this.state[color])}
           duration={this.state.duration}
         />
+
+        <section>
+          <h3>SouthPole</h3>
+          <p>Number of colors: {this.state.colorNumber}</p>
+          <p>Length of sequence (in seconds): {round(this.state.duration)}</p>
+
+          <label htmlFor="add-color">Add color
+            <button
+              onClick={this.addColor} 
+            >
+              <FontAwesome                 
+                name='plus' 
+              />
+            </button>
+          </label> 
+          
+          <DragDropContext onDragEnd={this.onDragEnd}>
+            <Droppable droppableId="south" direction="horizontal">
+              {(provided, snapshot) => (
+                <div
+                  ref={provided.innerRef}
+                  style={getListStyle(snapshot.isDraggingOver)}
+                >
+                  {this.state.colorList.map((item, index) => (
+                    <Draggable key={index} draggableId={index} index={index}>
+                      {(provided, snapshot) => (
+                        <div>
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={getItemStyle(
+                              snapshot.isDragging,
+                              provided.draggableProps.style,
+                              this.state[item].color
+                            )}
+                          >                            
+                            <header>
+                              <h3>Color #{index + 1}</h3>
+                              <label 
+                                htmlFor="remove-color">Remove color
+                                <button
+                                  onClick={() => this.removeColor(item, index)} 
+                                >
+                                  <FontAwesome                         
+                                    name='minus' 
+                                  />
+                                </button>
+                              </label>
+                            </header>
+                            
+                            <CirclePicker 
+                              color={this.state[item].color}
+                              onChangeComplete={ this.handleColorChange(item) }
+                            />
+
+                            <h3>Time in milliseconds: {this.state[item].duration}</h3>
+                            <SliderTooltip 
+                              max={1000}
+                              min={1}
+                              onAfterChange={this.handleTimeChange(item)}
+                            />
+                          </div>
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </section>
       </div>
     );
   }
