@@ -45,14 +45,27 @@ class Controls extends Component {
   constructor(props) {
     super(props);
     
-    this.state = {
-      duration: 0,
-      colorNumber: 1,
-      colorList: ['color1'],
-      color1: {
-        color: '#ffffff',
+    this.state = {   
+      currentPole: 'NorthPole',   
+      NorthPole: {
         duration: 0,
-        id: 'color1'
+        colorNumber: 1,
+        colorList: ['color1'],
+        color1: {
+          color: '#ffffff',
+          duration: 0,
+          id: 'color1'
+        }
+      },
+      SouthPole: {
+        duration: 0,
+        colorNumber: 1,
+        colorList: ['color1'],
+        color1: {
+          color: '#ffffff',
+          duration: 0,
+          id: 'color1'
+        }
       }
     }
 
@@ -66,29 +79,29 @@ class Controls extends Component {
     }
 
     const items = reorder(
-      this.state.colorList,
+      this.state[this.state.currentPole].colorList,
       result.source.index,
       result.destination.index
     );
 
-    this.setState({
-      colorList: items
-    });
+    let stateObject = function() {
+      let returnObj = this.state;
+      returnObj[this.state.currentPole].colorList = items;
+      return returnObj;
+    }
+  
+    this.setState( stateObject ); 
   }
 
-  configureJupiter = (e) => {
-    e.preventDefault();
-  }  
-
   addColor = () => {
-    let currentColorNumber = this.state.colorNumber,
+    let currentColorNumber = this.state[this.state.currentPole].colorNumber,
       newPropName = 'color' + (currentColorNumber + 1) + Date.now();
 
     let stateObject = function() {
       let returnObj = this.state;
-      returnObj['colorNumber'] = currentColorNumber + 1;
-      returnObj['colorList'].push(newPropName);
-      returnObj[newPropName] = {
+      returnObj[this.state.currentPole]['colorNumber'] = currentColorNumber + 1;
+      returnObj[this.state.currentPole]['colorList'].push(newPropName);
+      returnObj[this.state.currentPole][newPropName] = {
         color: '#ffffff',
         duration: 0,
         id: newPropName
@@ -100,19 +113,19 @@ class Controls extends Component {
   }
 
   removeColor = (color, index) => {
-    let currentColorNumber = this.state.colorNumber,
-      currentColorList = this.state.colorList;
+    let currentColorNumber = this.state[this.state.currentPole].colorNumber,
+      currentColorList = this.state[this.state.currentPole].colorList;
 
     currentColorList.splice(index, 1);
 
     let stateObject = function() {
       let returnObj = this.state;
-      returnObj['colorNumber'] = currentColorNumber > 0 ? 
+      returnObj[this.state.currentPole]['colorNumber'] = currentColorNumber > 0 ? 
         currentColorNumber - 1 : 0;
-      returnObj['colorList'] = currentColorList;
-      returnObj['duration'] = returnObj['duration'] - (returnObj[color].duration / 1000);
+      returnObj[this.state.currentPole]['colorList'] = currentColorList;
+      returnObj[this.state.currentPole]['duration'] = returnObj[this.state.currentPole]['duration'] - (returnObj[this.state.currentPole][color].duration / 1000);
 
-      returnObj[color] = undefined;
+      returnObj[this.state.currentPole][color] = undefined;
       return returnObj;
     };
     
@@ -122,7 +135,7 @@ class Controls extends Component {
   handleColorChange = (name) => (color) => {
     let stateObject = function() {
       let returnObj = this.state;
-      returnObj[name].color = color.hex;
+      returnObj[this.state.currentPole][name].color = color.hex;
       return returnObj;
     };
     
@@ -130,16 +143,16 @@ class Controls extends Component {
   }
 
   handleTimeChange = (name) => (value) => {
-    if (this.state[name].duration === value) return;
+    if (this.state[this.state.currentPole][name].duration === value) return;
 
     let stateObject = function() {
       let returnObj = this.state;
 
-      returnObj['duration'] = returnObj[name].duration > value ?
-        returnObj['duration'] - ((returnObj[name].duration - value) / 1000) :
-        returnObj['duration'] + ((value - returnObj[name].duration) / 1000);
+      returnObj[this.state.currentPole]['duration'] = returnObj[this.state.currentPole][name].duration > value ?
+        returnObj[this.state.currentPole]['duration'] - ((returnObj[this.state.currentPole][name].duration - value) / 1000) :
+        returnObj[this.state.currentPole]['duration'] + ((value - returnObj[this.state.currentPole][name].duration) / 1000);
 
-      returnObj[name].duration = value;
+      returnObj[this.state.currentPole][name].duration = value;
       return returnObj;
     }; 
 
@@ -151,9 +164,9 @@ class Controls extends Component {
       <div 
         className="Controls">
         <section>
-          <h3>NorthPole</h3>
-          <p>Number of colors: {this.state.colorNumber}</p>
-          <p>Length of sequence (in seconds): {round(this.state.duration)}</p>
+          <h3>{this.state.currentPole}</h3>
+          <p>Number of colors: {this.state[this.state.currentPole].colorNumber}</p>
+          <p>Length of sequence (in seconds): {round(this.state[this.state.currentPole].duration)}</p>
 
           <label htmlFor="add-color">Add color
             <button
@@ -172,7 +185,7 @@ class Controls extends Component {
                   ref={provided.innerRef}
                   style={getListStyle(snapshot.isDraggingOver)}
                 >
-                  {this.state.colorList.map((item, index) => (
+                  {this.state[this.state.currentPole].colorList.map((item, index) => (
                     <Draggable key={index} draggableId={index} index={index}>
                       {(provided, snapshot) => (
                         <div>
@@ -183,7 +196,7 @@ class Controls extends Component {
                             style={getItemStyle(
                               snapshot.isDragging,
                               provided.draggableProps.style,
-                              this.state[item].color
+                              this.state[this.state.currentPole][item].color
                             )}
                           >                            
                             <header>
@@ -201,11 +214,11 @@ class Controls extends Component {
                             </header>
                             
                             <CirclePicker 
-                              color={this.state[item].color}
+                              color={this.state[this.state.currentPole][item].color}
                               onChangeComplete={ this.handleColorChange(item) }
                             />
 
-                            <h3>Time in milliseconds: {this.state[item].duration}</h3>
+                            <h3>Time in milliseconds: {this.state[this.state.currentPole][item].duration}</h3>
                             <SliderTooltip 
                               max={1000}
                               min={1}
@@ -225,83 +238,9 @@ class Controls extends Component {
         </section>
 
         <Ball 
-          colors={Array.from(this.state.colorList, color => color = this.state[color])}
-          duration={this.state.duration}
+          colors={Array.from(this.state[this.state.currentPole].colorList, color => color = this.state[this.state.currentPole][color])}
+          duration={this.state[this.state.currentPole].duration}
         />
-
-        <section>
-          <h3>SouthPole</h3>
-          <p>Number of colors: {this.state.colorNumber}</p>
-          <p>Length of sequence (in seconds): {round(this.state.duration)}</p>
-
-          <label htmlFor="add-color">Add color
-            <button
-              onClick={this.addColor} 
-            >
-              <FontAwesome                 
-                name='plus' 
-              />
-            </button>
-          </label> 
-          
-          <DragDropContext onDragEnd={this.onDragEnd}>
-            <Droppable droppableId="south" direction="horizontal">
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  style={getListStyle(snapshot.isDraggingOver)}
-                >
-                  {this.state.colorList.map((item, index) => (
-                    <Draggable key={index} draggableId={index} index={index}>
-                      {(provided, snapshot) => (
-                        <div>
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            style={getItemStyle(
-                              snapshot.isDragging,
-                              provided.draggableProps.style,
-                              this.state[item].color
-                            )}
-                          >                            
-                            <header>
-                              <h3>Color #{index + 1}</h3>
-                              <label 
-                                htmlFor="remove-color">Remove color
-                                <button
-                                  onClick={() => this.removeColor(item, index)} 
-                                >
-                                  <FontAwesome                         
-                                    name='minus' 
-                                  />
-                                </button>
-                              </label>
-                            </header>
-                            
-                            <CirclePicker 
-                              color={this.state[item].color}
-                              onChangeComplete={ this.handleColorChange(item) }
-                            />
-
-                            <h3>Time in milliseconds: {this.state[item].duration}</h3>
-                            <SliderTooltip 
-                              max={1000}
-                              min={1}
-                              onAfterChange={this.handleTimeChange(item)}
-                            />
-                          </div>
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </section>
       </div>
     );
   }
