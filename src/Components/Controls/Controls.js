@@ -159,12 +159,21 @@ class Controls extends Component {
     this.setState(stateObject);
   }
 
+  toggleSide = () => {
+    let newPole = this.state.currentPole === 'NorthPole' ? 'SouthPole' : 'NorthPole';
+
+    this.setState({
+      currentPole: newPole
+    });
+  };
+
   render() {
     return (
       <div 
         className="Controls">
         <section>
           <h3>{this.state.currentPole}</h3>
+          <button onClick={this.toggleSide}>Toggle Side</button>
           <p>Number of colors: {this.state[this.state.currentPole].colorNumber}</p>
           <p>Length of sequence (in seconds): {round(this.state[this.state.currentPole].duration)}</p>
 
@@ -238,8 +247,10 @@ class Controls extends Component {
         </section>
 
         <Ball 
-          colors={Array.from(this.state[this.state.currentPole].colorList, color => color = this.state[this.state.currentPole][color])}
-          duration={this.state[this.state.currentPole].duration}
+          northColors={Array.from(this.state['NorthPole'].colorList, color => color = this.state[this.state.currentPole][color])}
+          northDuration={this.state['NorthPole'].duration}
+          southColors={Array.from(this.state['SouthPole'].colorList, color => color = this.state[this.state.currentPole][color])}
+          southDuration={this.state['SouthPole'].duration}
         />
       </div>
     );

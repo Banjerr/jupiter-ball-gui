@@ -1,8 +1,16 @@
-const injectStyle = (style) => {
+const injectStyle = (style, hemisphere) => {
   if (!style) return;
-  
-  const styleElement = document.createElement('style');
-  let styleSheet = null;
+
+  let styleElement,
+    styleSheet = null;
+
+  if (!document.getElementById(hemisphere)) {
+    styleElement = document.createElement('style');
+    styleElement.setAttribute("id", hemisphere);
+  }
+  else {
+    styleElement = document.getElementById(hemisphere);
+  }  
 
   document.head.appendChild(styleElement);
 
