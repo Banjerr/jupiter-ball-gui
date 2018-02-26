@@ -1,3 +1,14 @@
-# GUI for Jupiter Ball
+# G.U.I for Jupiter Ball
 
-This will be a G.U.I for the Jupiter Ball by Speevers. It will allow you to change the number of colors in a sequence, set the colors for the sequence, and adjust the time spent on each color
+An intuitive interface for the programmable Jupiter L.E.D. ball, by Speevers.
+
+You can easily create new sequences by...
+
+- adding new colors
+- removing colors
+- adjusting the length of time (in milliseconds) for each color
+
+Still a work in progress. Next on the task list...
+- generate the XML for the sequence
+- name the sequence
+- share sequences onlne
