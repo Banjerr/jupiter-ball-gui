@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Ball from '../Ball/Ball.js';
 import './Controls.css';
 import FontAwesome from 'react-fontawesome';
-import { CirclePicker } from 'react-color';
+import { CompactPicker } from 'react-color';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -213,7 +213,7 @@ class Controls extends Component {
                               </label>
                             </header>
                             
-                            <CirclePicker 
+                            <CompactPicker 
                               color={this.state[this.state.currentPole][item].color}
                               onChangeComplete={ this.handleColorChange(item) }
                             />
