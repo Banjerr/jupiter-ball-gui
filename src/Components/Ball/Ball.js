@@ -12,7 +12,7 @@ class Ball extends Component {
     styleObject = `@-webkit-keyframes north {`;
 
     this.props.northColors.map((color, index) => {
-      if (!color && !color.duration) return true;
+      if (!color || !color.duration) return true;
 
       nextStartingPoint = index > 1 ?
         (((color.duration / 1000) / this.props.northDuration) * 100) + nextStartingPoint :
@@ -35,7 +35,7 @@ class Ball extends Component {
     styleObject = `@-webkit-keyframes south {`;
 
     this.props.southColors.map((color, index) => {
-      if (!color && !color.duration) return true;
+      if (!color || !color.duration) return true;
 
       nextStartingPoint = index > 1 ?
         (((color.duration / 1000) / this.props.southDuration) * 100) + nextStartingPoint :
@@ -50,12 +50,12 @@ class Ball extends Component {
   }
  
   render() {
-    if (this.props.northColors.length) {
+    if (this.props.northColors[0].duration > 0) {
       let styleObj = this.createNorthHemisphereStyle();
       injectStyle(styleObj, 'north');
     }
     
-    if (this.props.southColors.length) {
+    if (this.props.southColors[0].duration > 0) {
       let styleObj = this.createSouthHemisphereStyle();
       injectStyle(styleObj, 'south');
     }
