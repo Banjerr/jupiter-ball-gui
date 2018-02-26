@@ -2,6 +2,8 @@
 
 An intuitive interface for the programmable Jupiter L.E.D. ball, by Speevers.
 
+![jupiter-ball-gui](https://github.com/Banjerr/jupiter-ball-gui/blob/master/jupiter-gui.gif?raw=true)
+
 You can easily create new sequences by...
 
 - adding new colors
