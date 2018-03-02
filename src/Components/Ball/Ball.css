@@ -6,6 +6,19 @@
   margin: 0 auto;
 }
 
+.Ball:after {
+  content: '';
+  position: absolute;
+  height: 396px;
+  width: 396px;
+  border: 2px solid #000;
+  border-radius: 50%;
+  top: 0px;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
 .NorthPole, .SouthPole {
   height: 200px;
   width: 400px;

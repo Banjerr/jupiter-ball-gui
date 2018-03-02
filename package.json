@@ -6,7 +6,7 @@
     "rc-slider": "^8.6.0",
     "react": "^16.2.0",
     "react-beautiful-dnd": "^5.0.0",
-    "react-color": "^2.13.8",
+    "react-color": "file:///Users/ben/Source/react-color",
     "react-dom": "^16.2.0",
     "react-fontawesome": "^1.6.1"
   },

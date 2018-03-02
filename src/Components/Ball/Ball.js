@@ -7,7 +7,8 @@ class Ball extends Component {
     if (!this.props.northColors.length) return;
 
     let styleObject,
-      nextStartingPoint;
+      nextStartingPoint,
+      colorToNotFade;
 
     styleObject = `@-webkit-keyframes north {`;
 
@@ -18,8 +19,18 @@ class Ball extends Component {
         (((color.duration / 1000) / this.props.northDuration) * 100) + nextStartingPoint :
         ((color.duration / 1000) / this.props.northDuration) * 100;
 
-      return styleObject += `${index === 0 ? 0 : nextStartingPoint}% { background-color: ${color.color}; }`
+      if (colorToNotFade) styleObject += `${nextStartingPoint - 1}% { background-color: ${colorToNotFade.color}; }`;
+
+      styleObject += `${index === 0 ? 0 : nextStartingPoint}% { background-color: ${color.color}; }`;
+      
+      color.fadeToNextColor ? 
+        colorToNotFade = false :
+        colorToNotFade = color;
+
+      return styleObject;
     });
+
+    if (colorToNotFade) styleObject += `99% { background-color: ${colorToNotFade.color}; }`;
 
     styleObject += `100% { background-color: ${this.props.northColors[0].color}; }}`;
 
@@ -50,6 +61,9 @@ class Ball extends Component {
   }
  
   render() {
+    let northFadeSpeed = this.props.northDuration / (this.props.northFade / 100),
+      southFadeSpeed = this.props.southDuration / (this.props.southFade / 100);
+
     if (this.props.northColors[0].duration > 0) {
       let styleObj = this.createNorthHemisphereStyle();
       injectStyle(styleObj, 'north');
@@ -58,16 +72,16 @@ class Ball extends Component {
     if (this.props.southColors[0].duration > 0) {
       let styleObj = this.createSouthHemisphereStyle();
       injectStyle(styleObj, 'south');
-    }
+    }    
 
     let NorthPole = () => (
-      <section style={{WebkitAnimation: `north ${this.props.northDuration}s ease infinite`}} className="NorthPole">
+      <section style={{WebkitAnimation: `north ${northFadeSpeed}s ease infinite`}} className="NorthPole">
         
       </section>
     )
     
     let SouthPole = () => (
-      <section style={{WebkitAnimation: `south ${this.props.southDuration}s ease infinite`}} className="SouthPole">
+      <section style={{WebkitAnimation: `south ${southFadeSpeed}s ease infinite`}} className="SouthPole">
         
       </section>
     )

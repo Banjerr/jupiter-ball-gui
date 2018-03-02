@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Ball from '../Ball/Ball.js';
 import './Controls.css';
 import FontAwesome from 'react-fontawesome';
-import { CompactPicker } from 'react-color';
+import { SketchPicker } from 'react-color';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -49,22 +49,26 @@ class Controls extends Component {
       currentPole: 'NorthPole',   
       NorthPole: {
         duration: 0,
+        fadeSpeed: 100,
         colorNumber: 1,
         colorList: ['color1'],
         color1: {
           color: '#ffffff',
           duration: 0,
-          id: 'color1'
+          id: 'color1',
+          fadeToNextColor: true
         }
       },
       SouthPole: {
         duration: 0,
+        fadeSpeed: 100,
         colorNumber: 1,
         colorList: ['color1'],
         color1: {
           color: '#ffffff',
           duration: 0,
-          id: 'color1'
+          id: 'color1',
+          fadeToNextColor: true
         }
       }
     }
@@ -104,7 +108,8 @@ class Controls extends Component {
       returnObj[this.state.currentPole][newPropName] = {
         color: '#ffffff',
         duration: 0,
-        id: newPropName
+        id: newPropName,
+        fadeToNextColor: true
       };
       return returnObj;
     }
@@ -165,7 +170,31 @@ class Controls extends Component {
     this.setState({
       currentPole: newPole
     });
-  };
+  }
+
+  handleFadeSpeedChange = (value) => {
+    let stateObject = function() {
+      let returnObj = this.state;
+
+      returnObj[this.state.currentPole].fadeSpeed = value;
+
+      return returnObj;
+    }; 
+
+    this.setState(stateObject);
+  }
+
+  handleFadeToNextChange = (item) => {
+    let stateObject = function() {
+      let returnObj = this.state;
+
+      returnObj[this.state.currentPole][item].fadeToNextColor = returnObj[this.state.currentPole][item].fadeToNextColor ? false : true;
+
+      return returnObj;
+    }; 
+
+    this.setState(stateObject);
+  }
 
   render() {
     return (
@@ -176,6 +205,13 @@ class Controls extends Component {
           <button onClick={this.togglePole}>Toggle Side</button>
           <p>Number of colors: {this.state[this.state.currentPole].colorNumber}</p>
           <p>Length of sequence (in seconds): {round(this.state[this.state.currentPole].duration)}</p>
+
+          <SliderTooltip 
+            max={200}
+            min={1}
+            value={this.state[this.state.currentPole].fadeSpeed}
+            onChange={this.handleFadeSpeedChange}
+          />
 
           <label htmlFor="add-color">Add color
             <button
@@ -220,9 +256,17 @@ class Controls extends Component {
                                   />
                                 </button>
                               </label>
+                              <label 
+                                htmlFor="fade-to-next">Fade Into Next Color?
+                                <input 
+                                  type='checkbox' id="fade-to-next" value={this.state[this.state.currentPole][item].fadeToNextColor}   defaultChecked={true} 
+                                  onClick={() => this.handleFadeToNextChange(item)} />
+                              </label>                                
                             </header>
                             
-                            <CompactPicker 
+                            <SketchPicker
+                              disableAlpha={true}
+                              contenteditable={true}
                               color={this.state[this.state.currentPole][item].color}
                               onChangeComplete={ this.handleColorChange(item) }
                             />
@@ -249,8 +293,10 @@ class Controls extends Component {
         <Ball 
           northColors={Array.from(this.state['NorthPole'].colorList, color => color = this.state['NorthPole'][color])}
           northDuration={this.state['NorthPole'].duration}
+          northFade={this.state['NorthPole'].fadeSpeed}
           southColors={Array.from(this.state['SouthPole'].colorList, color => color = this.state['SouthPole'][color])}
           southDuration={this.state['SouthPole'].duration}
+          southFade={this.state['SouthPole'].fadeSpeed}
         />
       </div>
     );
