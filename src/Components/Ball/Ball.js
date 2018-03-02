@@ -41,7 +41,8 @@ class Ball extends Component {
     if (!this.props.southColors.length) return;
 
     let styleObject,
-        nextStartingPoint;
+        nextStartingPoint,
+        colorToNotFade;
 
     styleObject = `@-webkit-keyframes south {`;
 
@@ -52,8 +53,18 @@ class Ball extends Component {
         (((color.duration / 1000) / this.props.southDuration) * 100) + nextStartingPoint :
         ((color.duration / 1000) / this.props.southDuration) * 100;
 
-      return styleObject += `${index === 0 ? 0 : nextStartingPoint}% { background-color: ${color.color}; }`
+      if (colorToNotFade) styleObject += `${nextStartingPoint - 1}% { background-color: ${colorToNotFade.color}; }`;
+
+      styleObject += `${index === 0 ? 0 : nextStartingPoint}% { background-color: ${color.color}; }`
+
+      color.fadeToNextColor ? 
+        colorToNotFade = false :
+        colorToNotFade = color;
+
+      return styleObject;
     });
+
+    if (colorToNotFade) styleObject += `99% { background-color: ${colorToNotFade.color}; }`;
 
     styleObject += `100% { background-color: ${this.props.southColors[0].color}; }}`;
 
