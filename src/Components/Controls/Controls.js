@@ -205,7 +205,7 @@ class Controls extends Component {
           <button onClick={this.togglePole}>Toggle Side</button>
           <p>Number of colors: {this.state[this.state.currentPole].colorNumber}</p>
           <p>Length of sequence (in seconds): {round(this.state[this.state.currentPole].duration)}</p>
-
+          <label>Overall fade speed: {this.state[this.state.currentPole].fadeSpeed}% (default is 100%)</label>
           <SliderTooltip 
             max={200}
             min={1}
