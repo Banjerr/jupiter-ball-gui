@@ -34,7 +34,7 @@ const getListStyle = isDraggingOver => ({
 });
 
 class Controls extends Component {
-  render() {
+  render() {  
     return (
       <div 
         className="Controls">
@@ -81,40 +81,7 @@ class Controls extends Component {
                               this.props.sequence[item].color
                             )}
                           >                            
-                            <header>
-                              <h3>Color #{index + 1}</h3>
-                              <label 
-                                htmlFor="remove-color">Remove color
-                                <button
-                                  onClick={() => this.props.removeColor(item, index)} 
-                                >
-                                  <FontAwesome                         
-                                    name='minus' 
-                                  />
-                                </button>
-                              </label>
-                              <label 
-                                htmlFor="fade-to-next">Fade Into Next Color?
-                                <input 
-                                  type='checkbox' id="fade-to-next" value={this.props.sequence[item].fadeToNextColor}   
-                                  defaultChecked={true} 
-                                  onClick={() => this.props.handleFadeToNextChange(item)} />
-                              </label>                                
-                            </header>
-                            
-                            <SketchPicker
-                              disableAlpha={true}
-                              contenteditable={true}
-                              color={this.props.sequence[item].color}
-                              onChangeComplete={ this.props.handleColorChange(item) }
-                            />
-
-                            <h3>Time in milliseconds: {this.props.sequence[item].duration}</h3>
-                            <SliderTooltip 
-                              max={1000}
-                              min={1}
-                              onAfterChange={this.props.handleTimeChange(item)}
-                            />
+                            <FontAwesome name="pencil" onClick={() => this.props.editThisColor(item, index)} />
                           </div>
                           {provided.placeholder}
                         </div>
@@ -127,6 +94,46 @@ class Controls extends Component {
             </Droppable>
           </DragDropContext>
         </section>
+
+        {this.props.colorEditMode ? 
+          <section>
+            <header>
+              <h3>Color #{this.props.editingThisColor.index + 1}</h3>
+              <label 
+                htmlFor="remove-color">Remove color
+                <button
+                  onClick={() => this.props.removeColor(this.props.editingThisColor.id, this.props.editingThisColor.index)} 
+                >
+                  <FontAwesome                         
+                    name='minus' 
+                  />
+                </button>
+              </label>
+              <label 
+                htmlFor="fade-to-next">Fade Into Next Color?
+                <input 
+                  type='checkbox' id="fade-to-next" value={this.props.sequence[this.props.editingThisColor.id].fadeToNextColor}   
+                  defaultChecked={true} 
+                  onClick={() => this.props.handleFadeToNextChange(this.props.editingThisColor.id)} />
+              </label>                                
+            </header>
+            
+            <SketchPicker
+              disableAlpha={true}
+              contenteditable={true}
+              color={this.props.sequence[this.props.editingThisColor.id].color}
+              onChangeComplete={ this.props.handleColorChange(this.props.editingThisColor.id) }
+            />
+
+            <h3>Time in milliseconds: {this.props.sequence[this.props.editingThisColor.id].duration}</h3>
+            <SliderTooltip 
+              max={1000}
+              min={1}
+              onAfterChange={this.props.handleTimeChange(this.props.editingThisColor.id)}
+            />
+          </section> :
+          <p>Click a color above to edit</p>
+        }
 
         <Ball 
           northColors={this.props.sequence.northPole ? this.props.sequence.colorList.map((color) => color = this.props.sequence[color]) : null}

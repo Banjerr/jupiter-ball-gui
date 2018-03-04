@@ -55,7 +55,9 @@ class BallEditor extends Component {
       currentNameAddNorth: false,
       currentNameAddSouth: false,
       nameModalOpen: false,
-      sequenceData: {}
+      sequenceData: {},
+      colorEditMode: false,
+      editingThisColor: null
     }
 
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -300,11 +302,25 @@ class BallEditor extends Component {
       let returnObj = this.state;
 
       returnObj[copyTo].sequences = copyThese;
-      
+
       returnObj[ballPart].sequences.map((sequence) => {
         returnObj.sequenceData[sequence.id].northPole = true;
         returnObj.sequenceData[sequence.id].southPole = true;
       });
+
+      return returnObj;
+    }; 
+
+    this.setState(stateObject);
+  }
+
+  editThisColor = (item, index) => {
+    let stateObject = function() {
+      let returnObj = this.state;
+
+      returnObj.editingThisColor = returnObj.sequenceData[this.state.currentSequence.id][item];
+      returnObj.editingThisColor.index = index;
+      returnObj.colorEditMode = true;
 
       return returnObj;
     }; 
@@ -356,14 +372,17 @@ class BallEditor extends Component {
               Back 
             </button>
             <Controls 
-            handleFadeSpeedChange={this.handleFadeSpeedChange}
-            addColor={this.addColor}
-            onDragEnd={this.onDragEnd}
-            removeColor={this.removeColor}
-            handleFadeToNextChange={this.handleFadeToNextChange}
-            handleColorChange={this.handleColorChange}
-            handleTimeChange={this.handleTimeChange}
-            sequence={this.state.sequenceData[this.state.currentSequence.id]}
+              handleFadeSpeedChange={this.handleFadeSpeedChange}
+              addColor={this.addColor}
+              onDragEnd={this.onDragEnd}
+              removeColor={this.removeColor}
+              handleFadeToNextChange={this.handleFadeToNextChange}
+              handleColorChange={this.handleColorChange}
+              handleTimeChange={this.handleTimeChange}
+              sequence={this.state.sequenceData[this.state.currentSequence.id]}
+              editThisColor={this.editThisColor}
+              colorEditMode={this.state.colorEditMode}
+              editingThisColor={this.state.editingThisColor}
             />
           </div> :
           <div className="sequenceContainer">
