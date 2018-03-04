@@ -12,14 +12,6 @@ const SliderTooltip = createSliderWithTooltip(Slider);
 
 const round = (value) => Number(Math.round(value+'e2')+'e-2');
 
-const reorder = (list, startIndex, endIndex) => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-
-  return result;
-};
-
 const grid = 8;
 
 const getItemStyle = (isDragging, draggableStyle, itemColor) => ({
@@ -42,40 +34,6 @@ const getListStyle = isDraggingOver => ({
 });
 
 class Controls extends Component {
-  // constructor(props) {
-  //   super(props);
-    
-  //   this.state = {   
-  //     currentPole: 'NorthPole',   
-  //     NorthPole: {
-  //       duration: 0,
-  //       fadeSpeed: 100,
-  //       colorNumber: 1,
-  //       colorList: ['color1'],
-  //       color1: {
-  //         color: '#ffffff',
-  //         duration: 0,
-  //         id: 'color1',
-  //         fadeToNextColor: true
-  //       }
-  //     },
-  //     SouthPole: {
-  //       duration: 0,
-  //       fadeSpeed: 100,
-  //       colorNumber: 1,
-  //       colorList: ['color1'],
-  //       color1: {
-  //         color: '#ffffff',
-  //         duration: 0,
-  //         id: 'color1',
-  //         fadeToNextColor: true
-  //       }
-  //     }
-  //   }
-
-  //   this.onDragEnd = this.onDragEnd.bind(this);
-  // }
-
   render() {
     return (
       <div 

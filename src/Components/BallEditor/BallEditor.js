@@ -59,6 +59,7 @@ class BallEditor extends Component {
     }
 
     this.onDragEnd = this.onDragEnd.bind(this);
+    this.onSequenceDragEnd = this.onSequenceDragEnd.bind(this);
     this.updateName = this.updateName.bind(this);
     this.openNameModal = this.openNameModal.bind(this);
   }
@@ -285,6 +286,32 @@ class BallEditor extends Component {
     this.setState(stateObject);
   }
 
+  exitSequenceEditor = () => this.setState({currentSequence: null});
+
+  copyToOppositePole = (ballPart) => {
+    if (!this.state[ballPart].sequences) return;
+
+    let copyThese = this.state[ballPart].sequences.slice(0),
+      copyTo = ballPart === 'northSequences' ? 'southSequences' : 'northSequences';
+
+    if (copyThese === this.state[copyTo].sequences) return;
+
+    let stateObject = function() {
+      let returnObj = this.state;
+
+      returnObj[copyTo].sequences = copyThese;
+      
+      returnObj[ballPart].sequences.map((sequence) => {
+        returnObj.sequenceData[sequence.id].northPole = true;
+        returnObj.sequenceData[sequence.id].southPole = true;
+      });
+
+      return returnObj;
+    }; 
+
+    this.setState(stateObject);
+  }
+
   render() {
     const ballParts = ['northSequences', 'southSequences'];
 
@@ -323,16 +350,22 @@ class BallEditor extends Component {
     return (
       <div className="container">
         {this.state.currentSequence ?
-          <Controls 
-           handleFadeSpeedChange={this.handleFadeSpeedChange}
-           addColor={this.addColor}
-           onDragEnd={this.onDragEnd}
-           removeColor={this.removeColor}
-           handleFadeToNextChange={this.handleFadeToNextChange}
-           handleColorChange={this.handleColorChange}
-           handleTimeChange={this.handleTimeChange}
-           sequence={this.state.sequenceData[this.state.currentSequence.id]}
-          /> :
+          <div>
+            <button onClick={this.exitSequenceEditor}>              
+              <FontAwesome name="arrow-left" />
+              Back 
+            </button>
+            <Controls 
+            handleFadeSpeedChange={this.handleFadeSpeedChange}
+            addColor={this.addColor}
+            onDragEnd={this.onDragEnd}
+            removeColor={this.removeColor}
+            handleFadeToNextChange={this.handleFadeToNextChange}
+            handleColorChange={this.handleColorChange}
+            handleTimeChange={this.handleTimeChange}
+            sequence={this.state.sequenceData[this.state.currentSequence.id]}
+            />
+          </div> :
           <div className="sequenceContainer">
             <button 
               onClick={this.openNameModal}
@@ -347,6 +380,12 @@ class BallEditor extends Component {
                     <h2>North Pole</h2> :
                     <h2>South Pole</h2>
                   }
+                  <button
+                    onClick={() => this.copyToOppositePole(ballPart)}
+                  >
+                    Copy To {ballPart === 'northSequences' ? 'South' : 'North'}
+                    <FontAwesome name="copy" />
+                  </button>
                 </header>
                 <DragDropContext onDragEnd={this.onSequenceDragEnd}>
                   <Droppable droppableId={ballPart} direction="vertical">
