@@ -245,16 +245,16 @@ class BallEditor extends Component {
   }
 
   handleTimeChange = (name) => (value) => {
-    if (this.state[this.state.currentPole][name].duration === value) return;
+    if (this.state.sequenceData[this.state.currentSequence.id][name].duration === value) return;
 
     let stateObject = function() {
       let returnObj = this.state;
 
-      returnObj[this.state.currentPole]['duration'] = returnObj[this.state.currentPole][name].duration > value ?
-        returnObj[this.state.currentPole]['duration'] - ((returnObj[this.state.currentPole][name].duration - value) / 1000) :
-        returnObj[this.state.currentPole]['duration'] + ((value - returnObj[this.state.currentPole][name].duration) / 1000);
+      returnObj.sequenceData[this.state.currentSequence.id]['duration'] = returnObj.sequenceData[this.state.currentSequence.id][name].duration > value ?
+        returnObj.sequenceData[this.state.currentSequence.id]['duration'] - ((returnObj.sequenceData[this.state.currentSequence.id][name].duration - value) / 1000) :
+        returnObj.sequenceData[this.state.currentSequence.id]['duration'] + ((value - returnObj.sequenceData[this.state.currentSequence.id][name].duration) / 1000);
 
-      returnObj[this.state.currentPole][name].duration = value;
+      returnObj.sequenceData[this.state.currentSequence.id][name].duration = value;
       return returnObj;
     }; 
 

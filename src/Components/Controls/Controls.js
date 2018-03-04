@@ -169,15 +169,15 @@ class Controls extends Component {
             </Droppable>
           </DragDropContext>
         </section>
-
-        {/* <Ball 
-          northColors={Array.from(this.state['NorthPole'].colorList, color => color = this.state['NorthPole'][color])}
-          northDuration={this.state['NorthPole'].duration}
-          northFade={this.state['NorthPole'].fadeSpeed}
-          southColors={Array.from(this.state['SouthPole'].colorList, color => color = this.state['SouthPole'][color])}
-          southDuration={this.state['SouthPole'].duration}
-          southFade={this.state['SouthPole'].fadeSpeed}
-        /> */}
+        {/* TODO FIX BALL, SEND OVER WHICH SIDE(S) THE CURRENT SEQUENCE BELONGS TO AND DO JUNK */}
+        <Ball 
+          northColors={this.props.sequence.northPole ? this.props.sequence.colorList.map((color) => color = this.props.sequence[color]) : null}
+          northDuration={this.props.sequence.northPole ? this.props.sequence.duration : null}
+          northFade={this.props.sequence.northPole ? this.props.sequence.fadeSpeed : null}
+          southColors={this.props.sequence.southPole ? this.props.sequence.colorList.map((color) => color = this.props.sequence[color]) : null}
+          southDuration={this.props.sequence.southPole ? this.props.sequence.duration : null}
+          southFade={this.props.sequence.southPole ? this.props.sequence.fadeSpeed : null}
+        />
       </div>
     );
   }
