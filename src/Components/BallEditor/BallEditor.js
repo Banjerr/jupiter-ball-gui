@@ -4,8 +4,6 @@ import FontAwesome from 'react-fontawesome';
 import { Button, Modal, Form, Checkbox, Input } from 'semantic-ui-react'
 import './BallEditor.css';
 
-let addingSequenceTo;
-
 const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
@@ -16,23 +14,37 @@ const reorder = (list, startIndex, endIndex) => {
 
 const grid = 8;
 
-const getItemStyle = (isDragging, draggableStyle, itemColor) => ({
-  userSelect: 'none',
+const getContainerStyle = () => ({
+  boxSizing: 'border-box',
+  padding: `${grid * 2}px`,
+  minHeight: '100vh',
+  /* flexbox */
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'flex-start'
+});
+
+const getItemStyle = (isDragging, draggableStyle) => ({
+  // some basic styles to make the items look a bit nicer
   padding: grid * 2,
-  margin: `0 ${grid}px 0 0`,
+  margin: `0 0 ${grid}px 0`,
 
   // change background colour if dragging
-  background: isDragging ? 'lightgreen' : itemColor,
+  background: isDragging ? 'lightgreen' : 'grey',
 
   // styles we need to apply on draggables
   ...draggableStyle,
 });
 
 const getListStyle = isDraggingOver => ({
-  background: isDraggingOver ? 'lightblue' : 'lightgrey',
   display: 'flex',
-  padding: grid,
-  overflow: 'auto',
+  flexDirection: 'column',
+  justifyContent: 'flex-star',
+  alignItems: 'flex-start',
+  background: 'rgba(0, 0, 0, 0.1)',
+  padding: `${grid}px`,
+  maxHeight: '800px',
+  overflow: 'auto'
 });
 
 class BallEditor extends Component {
@@ -57,7 +69,6 @@ class BallEditor extends Component {
     this.onDragEnd = this.onDragEnd.bind(this);
     this.updateName = this.updateName.bind(this);
     this.openNameModal = this.openNameModal.bind(this);
-    this.handleRef = this.handleRef.bind(this);
   }
 
   addSequence = () => {
@@ -67,14 +78,10 @@ class BallEditor extends Component {
       let objectSafeSequenceName = this.state.currentNameValue.replace(/\s+/g, '-').toLowerCase() + '-' + + Date.now();
       
       if (returnObj.currentNameAddNorth) {
-        if (!returnObj.northSequences.sequences) returnObj.northSequences.sequences = [];
-
         returnObj.northSequences.sequences.push({id: objectSafeSequenceName, displayName: this.state.currentNameValue});
       }
 
       if (returnObj.currentNameAddSouth) {
-        if (!returnObj.southSequences.sequences) returnObj.southSequences.sequences = [];
-
         returnObj.southSequences.sequences.push({id: objectSafeSequenceName, displayName: this.state.currentNameValue});
       }
 
@@ -102,16 +109,16 @@ class BallEditor extends Component {
     let stateObject = function() {
       let returnObj = this.state;
 
-      returnObj[ballPart] = currentSequenceList;
+      returnObj[ballPart].sequences = currentSequenceList;
 
       if (ballPart === 'northSequences') {
-        if (!sequence.southPole) {
-          returnObj[ballPart][sequence.name] = undefined;
+        if (!this.state.sequenceData[sequence.id].southPole) {
+          returnObj.sequenceData[sequence.id] = undefined;
         }
       }
       else if (ballPart === 'southSequences') {
-        if (!sequence.northPole) {
-          returnObj[ballPart][sequence.name] = undefined;
+        if (!this.state.sequenceData[sequence.id].northPole) {
+          returnObj.sequenceData[sequence.id] = undefined;
         }
       }
       
@@ -123,28 +130,26 @@ class BallEditor extends Component {
 
   onDragEnd(result) {
     // dropped outside the list
-    // if (!result.destination) {
-    //   return;
-    // }
+    if (!result.destination) {
+      return;
+    }
 
-    // const items = reorder(
-    //   this.state[this.state.currentPole].colorList,
-    //   result.source.index,
-    //   result.destination.index
-    // );
+    const items = reorder(
+      this.state[result.source.droppableId].sequences,
+      result.source.index,
+      result.destination.index
+    );
 
-    // let stateObject = function() {
-    //   let returnObj = this.state;
-    //   returnObj[this.state.currentPole].colorList = items;
-    //   return returnObj;
-    // }
+    let stateObject = function() {
+      let returnObj = this.state;
+      returnObj[result.source.droppableId].sequences = items;
+      return returnObj;
+    }
   
-    // this.setState( stateObject ); 
+    this.setState( stateObject ); 
   }
 
   updateName = (event) => this.setState({ currentNameValue: event.target.value });
-
-  handleRef = component => (this.ref = component);
 
   openNameModal = () => this.setState({nameModalOpen: true});
 
@@ -196,10 +201,10 @@ class BallEditor extends Component {
         >
           <FontAwesome name='plus' />
         </button>
-        <NameModal />  
-        <DragDropContext onDragEnd={this.onDragEnd}>
-          {ballParts.map((ballPart, index) => (
-            <Droppable key={index} droppableId={ballPart} direction="vertical">
+        <NameModal />          
+        {ballParts.map((ballPart, index) => (
+          <DragDropContext key={index} onDragEnd={this.onDragEnd}>
+            <Droppable droppableId={ballPart} direction="vertical">
               {(provided, snapshot) => (
                 <div
                   ref={provided.innerRef}
@@ -216,9 +221,9 @@ class BallEditor extends Component {
                               {...provided.dragHandleProps}
                               style={getItemStyle(
                                 snapshot.isDragging,
-                                provided.draggableProps.style
+                                provided.draggableProps.style,
                               )}
-                            >                            
+                            >
                               <header>
                                 <h3>{sequence.displayName}</h3>
                                 <label 
@@ -244,8 +249,8 @@ class BallEditor extends Component {
                 </div>
               )}
             </Droppable>
-          ))}
-        </DragDropContext>              
+          </DragDropContext> 
+        ))}                     
       </div>
     )
   }
