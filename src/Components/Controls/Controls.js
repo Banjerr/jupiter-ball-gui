@@ -169,7 +169,7 @@ class Controls extends Component {
             </Droppable>
           </DragDropContext>
         </section>
-        {/* TODO FIX BALL, SEND OVER WHICH SIDE(S) THE CURRENT SEQUENCE BELONGS TO AND DO JUNK */}
+
         <Ball 
           northColors={this.props.sequence.northPole ? this.props.sequence.colorList.map((color) => color = this.props.sequence[color]) : null}
           northDuration={this.props.sequence.northPole ? this.props.sequence.duration : null}

@@ -179,14 +179,14 @@ class BallEditor extends Component {
     }
 
     const items = reorder(
-      this.state[this.state.currentPole].colorList,
+      this.state.sequenceData[this.state.currentSequence.id].colorList,
       result.source.index,
       result.destination.index
     );
 
     let stateObject = function() {
       let returnObj = this.state;
-      returnObj[this.state.currentPole].colorList = items;
+      returnObj.sequenceData[this.state.currentSequence.id].colorList = items;
       return returnObj;
     }
   
@@ -214,19 +214,19 @@ class BallEditor extends Component {
   }
 
   removeColor = (color, index) => {
-    let currentColorNumber = this.state[this.state.currentPole].colorNumber,
-      currentColorList = this.state[this.state.currentPole].colorList;
+    let currentColorNumber = this.state.sequenceData[this.state.currentSequence.id].colorNumber,
+      currentColorList = this.state.sequenceData[this.state.currentSequence.id].colorList;
 
     currentColorList.splice(index, 1);
 
     let stateObject = function() {
       let returnObj = this.state;
-      returnObj[this.state.currentPole]['colorNumber'] = currentColorNumber > 0 ? 
+      returnObj.sequenceData[this.state.currentSequence.id]['colorNumber'] = currentColorNumber > 0 ? 
         currentColorNumber - 1 : 0;
-      returnObj[this.state.currentPole]['colorList'] = currentColorList;
-      returnObj[this.state.currentPole]['duration'] = returnObj[this.state.currentPole]['duration'] - (returnObj[this.state.currentPole][color].duration / 1000);
+      returnObj.sequenceData[this.state.currentSequence.id]['colorList'] = currentColorList;
+      returnObj.sequenceData[this.state.currentSequence.id]['duration'] = returnObj.sequenceData[this.state.currentSequence.id]['duration'] - (returnObj.sequenceData[this.state.currentSequence.id][color].duration / 1000);
 
-      returnObj[this.state.currentPole][color] = undefined;
+      returnObj.sequenceData[this.state.currentSequence.id][color] = undefined;
       return returnObj;
     };
     
@@ -261,19 +261,11 @@ class BallEditor extends Component {
     this.setState(stateObject);
   }
 
-  togglePole = () => {
-    let newPole = this.state.currentPole === 'NorthPole' ? 'SouthPole' : 'NorthPole';
-
-    this.setState({
-      currentPole: newPole
-    });
-  }
-
   handleFadeSpeedChange = (value) => {
     let stateObject = function() {
       let returnObj = this.state;
 
-      returnObj[this.state.currentPole].fadeSpeed = value;
+      returnObj.sequenceData[this.state.currentSequence.id].fadeSpeed = value;
 
       return returnObj;
     }; 
@@ -285,7 +277,7 @@ class BallEditor extends Component {
     let stateObject = function() {
       let returnObj = this.state;
 
-      returnObj[this.state.currentPole][item].fadeToNextColor = returnObj[this.state.currentPole][item].fadeToNextColor ? false : true;
+      returnObj.sequenceData[this.state.currentSequence.id][item].fadeToNextColor = returnObj.sequenceData[this.state.currentSequence.id][item].fadeToNextColor ? false : true;
 
       return returnObj;
     }; 
