@@ -42,180 +42,59 @@ const getListStyle = isDraggingOver => ({
 });
 
 class Controls extends Component {
-  constructor(props) {
-    super(props);
+  // constructor(props) {
+  //   super(props);
     
-    this.state = {   
-      currentPole: 'NorthPole',   
-      NorthPole: {
-        duration: 0,
-        fadeSpeed: 100,
-        colorNumber: 1,
-        colorList: ['color1'],
-        color1: {
-          color: '#ffffff',
-          duration: 0,
-          id: 'color1',
-          fadeToNextColor: true
-        }
-      },
-      SouthPole: {
-        duration: 0,
-        fadeSpeed: 100,
-        colorNumber: 1,
-        colorList: ['color1'],
-        color1: {
-          color: '#ffffff',
-          duration: 0,
-          id: 'color1',
-          fadeToNextColor: true
-        }
-      }
-    }
+  //   this.state = {   
+  //     currentPole: 'NorthPole',   
+  //     NorthPole: {
+  //       duration: 0,
+  //       fadeSpeed: 100,
+  //       colorNumber: 1,
+  //       colorList: ['color1'],
+  //       color1: {
+  //         color: '#ffffff',
+  //         duration: 0,
+  //         id: 'color1',
+  //         fadeToNextColor: true
+  //       }
+  //     },
+  //     SouthPole: {
+  //       duration: 0,
+  //       fadeSpeed: 100,
+  //       colorNumber: 1,
+  //       colorList: ['color1'],
+  //       color1: {
+  //         color: '#ffffff',
+  //         duration: 0,
+  //         id: 'color1',
+  //         fadeToNextColor: true
+  //       }
+  //     }
+  //   }
 
-    this.onDragEnd = this.onDragEnd.bind(this);
-  }
-
-  onDragEnd(result) {
-    // dropped outside the list
-    if (!result.destination) {
-      return;
-    }
-
-    const items = reorder(
-      this.state[this.state.currentPole].colorList,
-      result.source.index,
-      result.destination.index
-    );
-
-    let stateObject = function() {
-      let returnObj = this.state;
-      returnObj[this.state.currentPole].colorList = items;
-      return returnObj;
-    }
-  
-    this.setState( stateObject ); 
-  }
-
-  addColor = () => {
-    let currentColorNumber = this.state[this.state.currentPole].colorNumber,
-      newPropName = 'color' + (currentColorNumber + 1) + Date.now();
-
-    let stateObject = function() {
-      let returnObj = this.state;
-      returnObj[this.state.currentPole]['colorNumber'] = currentColorNumber + 1;
-      returnObj[this.state.currentPole]['colorList'].push(newPropName);
-      returnObj[this.state.currentPole][newPropName] = {
-        color: '#ffffff',
-        duration: 0,
-        id: newPropName,
-        fadeToNextColor: true
-      };
-      return returnObj;
-    }
-  
-    this.setState( stateObject ); 
-  }
-
-  removeColor = (color, index) => {
-    let currentColorNumber = this.state[this.state.currentPole].colorNumber,
-      currentColorList = this.state[this.state.currentPole].colorList;
-
-    currentColorList.splice(index, 1);
-
-    let stateObject = function() {
-      let returnObj = this.state;
-      returnObj[this.state.currentPole]['colorNumber'] = currentColorNumber > 0 ? 
-        currentColorNumber - 1 : 0;
-      returnObj[this.state.currentPole]['colorList'] = currentColorList;
-      returnObj[this.state.currentPole]['duration'] = returnObj[this.state.currentPole]['duration'] - (returnObj[this.state.currentPole][color].duration / 1000);
-
-      returnObj[this.state.currentPole][color] = undefined;
-      return returnObj;
-    };
-    
-    this.setState(stateObject);
-  }
-
-  handleColorChange = (name) => (color) => {
-    let stateObject = function() {
-      let returnObj = this.state;
-      returnObj[this.state.currentPole][name].color = color.hex;
-      return returnObj;
-    };
-    
-    this.setState(stateObject);
-  }
-
-  handleTimeChange = (name) => (value) => {
-    if (this.state[this.state.currentPole][name].duration === value) return;
-
-    let stateObject = function() {
-      let returnObj = this.state;
-
-      returnObj[this.state.currentPole]['duration'] = returnObj[this.state.currentPole][name].duration > value ?
-        returnObj[this.state.currentPole]['duration'] - ((returnObj[this.state.currentPole][name].duration - value) / 1000) :
-        returnObj[this.state.currentPole]['duration'] + ((value - returnObj[this.state.currentPole][name].duration) / 1000);
-
-      returnObj[this.state.currentPole][name].duration = value;
-      return returnObj;
-    }; 
-
-    this.setState(stateObject);
-  }
-
-  togglePole = () => {
-    let newPole = this.state.currentPole === 'NorthPole' ? 'SouthPole' : 'NorthPole';
-
-    this.setState({
-      currentPole: newPole
-    });
-  }
-
-  handleFadeSpeedChange = (value) => {
-    let stateObject = function() {
-      let returnObj = this.state;
-
-      returnObj[this.state.currentPole].fadeSpeed = value;
-
-      return returnObj;
-    }; 
-
-    this.setState(stateObject);
-  }
-
-  handleFadeToNextChange = (item) => {
-    let stateObject = function() {
-      let returnObj = this.state;
-
-      returnObj[this.state.currentPole][item].fadeToNextColor = returnObj[this.state.currentPole][item].fadeToNextColor ? false : true;
-
-      return returnObj;
-    }; 
-
-    this.setState(stateObject);
-  }
+  //   this.onDragEnd = this.onDragEnd.bind(this);
+  // }
 
   render() {
     return (
       <div 
         className="Controls">
         <section>
-          <h3>{this.state.currentPole}</h3>
-          <button onClick={this.togglePole}>Toggle Side</button>
-          <p>Number of colors: {this.state[this.state.currentPole].colorNumber}</p>
-          <p>Length of sequence (in seconds): {round(this.state[this.state.currentPole].duration)}</p>
-          <label>Overall fade speed: {this.state[this.state.currentPole].fadeSpeed}% (default is 100%)</label>
+          <h3>{this.props.sequence.displayName}</h3>
+          <p>Number of colors: {this.props.sequence.colorNumber}</p>
+          <p>Length of sequence (in seconds): {round(this.props.sequence.duration)}</p>
+          <label>Overall fade speed: {this.props.sequence.fadeSpeed}% (default is 100%)</label>
           <SliderTooltip 
             max={200}
             min={1}
-            value={this.state[this.state.currentPole].fadeSpeed}
-            onChange={this.handleFadeSpeedChange}
+            value={this.props.sequence.fadeSpeed}
+            onChange={this.props.handleFadeSpeedChange}
           />
 
           <label htmlFor="add-color">Add color
             <button
-              onClick={this.addColor} 
+              onClick={this.props.addColor} 
             >
               <FontAwesome                 
                 name='plus' 
@@ -223,14 +102,14 @@ class Controls extends Component {
             </button>
           </label> 
           
-          <DragDropContext onDragEnd={this.onDragEnd}>
-            <Droppable droppableId="north" direction="horizontal">
+          <DragDropContext onDragEnd={this.props.onDragEnd}>
+            <Droppable droppableId={this.props.sequence.id} direction="horizontal">
               {(provided, snapshot) => (
                 <div
                   ref={provided.innerRef}
                   style={getListStyle(snapshot.isDraggingOver)}
                 >
-                  {this.state[this.state.currentPole].colorList.map((item, index) => (
+                  {this.props.sequence.colorList.map((item, index) => (
                     <Draggable key={index} draggableId={index} index={index}>
                       {(provided, snapshot) => (
                         <div>
@@ -241,7 +120,7 @@ class Controls extends Component {
                             style={getItemStyle(
                               snapshot.isDragging,
                               provided.draggableProps.style,
-                              this.state[this.state.currentPole][item].color
+                              this.props.sequence[item].color
                             )}
                           >                            
                             <header>
@@ -249,7 +128,7 @@ class Controls extends Component {
                               <label 
                                 htmlFor="remove-color">Remove color
                                 <button
-                                  onClick={() => this.removeColor(item, index)} 
+                                  onClick={() => this.props.removeColor(item, index)} 
                                 >
                                   <FontAwesome                         
                                     name='minus' 
@@ -259,23 +138,24 @@ class Controls extends Component {
                               <label 
                                 htmlFor="fade-to-next">Fade Into Next Color?
                                 <input 
-                                  type='checkbox' id="fade-to-next" value={this.state[this.state.currentPole][item].fadeToNextColor}   defaultChecked={true} 
-                                  onClick={() => this.handleFadeToNextChange(item)} />
+                                  type='checkbox' id="fade-to-next" value={this.props.sequence[item].fadeToNextColor}   
+                                  defaultChecked={true} 
+                                  onClick={() => this.props.handleFadeToNextChange(item)} />
                               </label>                                
                             </header>
                             
                             <SketchPicker
                               disableAlpha={true}
                               contenteditable={true}
-                              color={this.state[this.state.currentPole][item].color}
-                              onChangeComplete={ this.handleColorChange(item) }
+                              color={this.props.sequence[item].color}
+                              onChangeComplete={ this.props.handleColorChange(item) }
                             />
 
-                            <h3>Time in milliseconds: {this.state[this.state.currentPole][item].duration}</h3>
+                            <h3>Time in milliseconds: {this.props.sequence[item].duration}</h3>
                             <SliderTooltip 
                               max={1000}
                               min={1}
-                              onAfterChange={this.handleTimeChange(item)}
+                              onAfterChange={this.props.handleTimeChange(item)}
                             />
                           </div>
                           {provided.placeholder}
@@ -290,14 +170,14 @@ class Controls extends Component {
           </DragDropContext>
         </section>
 
-        <Ball 
+        {/* <Ball 
           northColors={Array.from(this.state['NorthPole'].colorList, color => color = this.state['NorthPole'][color])}
           northDuration={this.state['NorthPole'].duration}
           northFade={this.state['NorthPole'].fadeSpeed}
           southColors={Array.from(this.state['SouthPole'].colorList, color => color = this.state['SouthPole'][color])}
           southDuration={this.state['SouthPole'].duration}
           southFade={this.state['SouthPole'].fadeSpeed}
-        />
+        /> */}
       </div>
     );
   }

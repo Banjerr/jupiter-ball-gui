@@ -1,0 +1,10 @@
+.sequenceContainer {
+  display: flex;
+  align-self: flex-start;
+  flex-direction: row;
+}
+
+.columns {
+  max-width: 400px;
+  width: 100%;  
+}

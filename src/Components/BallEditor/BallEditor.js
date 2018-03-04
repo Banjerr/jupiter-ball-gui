@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import FontAwesome from 'react-fontawesome';
 import { Button, Modal, Form, Checkbox, Input } from 'semantic-ui-react'
+import Controls from '../Controls/Controls.js';
 import './BallEditor.css';
 
 const reorder = (list, startIndex, endIndex) => {
@@ -14,20 +15,11 @@ const reorder = (list, startIndex, endIndex) => {
 
 const grid = 8;
 
-const getContainerStyle = () => ({
-  boxSizing: 'border-box',
-  padding: `${grid * 2}px`,
-  minHeight: '100vh',
-  /* flexbox */
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'flex-start'
-});
-
 const getItemStyle = (isDragging, draggableStyle) => ({
   // some basic styles to make the items look a bit nicer
   padding: grid * 2,
   margin: `0 0 ${grid}px 0`,
+  width: '100%',
 
   // change background colour if dragging
   background: isDragging ? 'lightgreen' : 'grey',
@@ -71,6 +63,8 @@ class BallEditor extends Component {
     this.openNameModal = this.openNameModal.bind(this);
   }
 
+  /* Sequence Methods */
+
   addSequence = () => {
     let stateObject = function() {
       let returnObj = this.state;
@@ -88,7 +82,18 @@ class BallEditor extends Component {
       returnObj.sequenceData[objectSafeSequenceName] = {
         displayName: this.state.currentNameValue,
         northPole: returnObj.currentNameAddNorth ? true : false,
-        southPole: returnObj.currentNameAddSouth ? true :false
+        southPole: returnObj.currentNameAddSouth ? true :false,
+        id: objectSafeSequenceName,
+        duration: 0,
+        fadeSpeed: 100,
+        colorNumber: 1,
+        colorList: ['color1'],
+        color1: {
+          color: '#ffffff',
+          duration: 0,
+          id: 'color1',
+          fadeToNextColor: true
+        }
       };
 
       returnObj.nameModalOpen = false;
@@ -112,11 +117,15 @@ class BallEditor extends Component {
       returnObj[ballPart].sequences = currentSequenceList;
 
       if (ballPart === 'northSequences') {
+        returnObj.sequenceData[sequence.id].northPole = false;
+
         if (!this.state.sequenceData[sequence.id].southPole) {
           returnObj.sequenceData[sequence.id] = undefined;
         }
       }
       else if (ballPart === 'southSequences') {
+        returnObj.sequenceData[sequence.id].southPole = false;
+
         if (!this.state.sequenceData[sequence.id].northPole) {
           returnObj.sequenceData[sequence.id] = undefined;
         }
@@ -128,7 +137,7 @@ class BallEditor extends Component {
     this.setState(stateObject);
   }
 
-  onDragEnd(result) {
+  onSequenceDragEnd(result) {
     // dropped outside the list
     if (!result.destination) {
       return;
@@ -155,9 +164,134 @@ class BallEditor extends Component {
 
   closeNameModal = () => this.setState({nameModalOpen: false});
 
+  editSequence = (sequence) => this.setState({currentSequence: sequence});
+
   handlePoleCheck = (addToNorth) => addToNorth ? 
     this.setState({currentNameAddNorth: !this.state.currentNameAddNorth}) :
     this.setState({currentNameAddSouth: !this.state.currentNameAddSouth});
+
+  /* Sequence Editor Methods */
+
+  onDragEnd(result) {
+    // dropped outside the list
+    if (!result.destination) {
+      return;
+    }
+
+    const items = reorder(
+      this.state[this.state.currentPole].colorList,
+      result.source.index,
+      result.destination.index
+    );
+
+    let stateObject = function() {
+      let returnObj = this.state;
+      returnObj[this.state.currentPole].colorList = items;
+      return returnObj;
+    }
+  
+    this.setState( stateObject ); 
+  }
+
+  addColor = () => {
+    let currentColorNumber = this.state.sequenceData[this.state.currentSequence.id].colorNumber,
+      newPropName = 'color' + (currentColorNumber + 1) + Date.now();
+      
+    let stateObject = function() {
+      let returnObj = this.state;
+      returnObj.sequenceData[this.state.currentSequence.id]['colorNumber'] = currentColorNumber + 1;
+      returnObj.sequenceData[this.state.currentSequence.id]['colorList'].push(newPropName);
+      returnObj.sequenceData[this.state.currentSequence.id][newPropName] = {
+        color: '#ffffff',
+        duration: 0,
+        id: newPropName,
+        fadeToNextColor: true
+      };
+      return returnObj;
+    }
+  
+    this.setState( stateObject ); 
+  }
+
+  removeColor = (color, index) => {
+    let currentColorNumber = this.state[this.state.currentPole].colorNumber,
+      currentColorList = this.state[this.state.currentPole].colorList;
+
+    currentColorList.splice(index, 1);
+
+    let stateObject = function() {
+      let returnObj = this.state;
+      returnObj[this.state.currentPole]['colorNumber'] = currentColorNumber > 0 ? 
+        currentColorNumber - 1 : 0;
+      returnObj[this.state.currentPole]['colorList'] = currentColorList;
+      returnObj[this.state.currentPole]['duration'] = returnObj[this.state.currentPole]['duration'] - (returnObj[this.state.currentPole][color].duration / 1000);
+
+      returnObj[this.state.currentPole][color] = undefined;
+      return returnObj;
+    };
+    
+    this.setState(stateObject);
+  }
+
+  handleColorChange = (name) => (color) => {
+    let stateObject = function() {
+      let returnObj = this.state;
+      returnObj.sequenceData[this.state.currentSequence.id].color = color.hex;
+      returnObj.sequenceData[this.state.currentSequence.id][name].color = color.hex;
+      return returnObj;
+    };
+    
+    this.setState(stateObject);
+  }
+
+  handleTimeChange = (name) => (value) => {
+    if (this.state[this.state.currentPole][name].duration === value) return;
+
+    let stateObject = function() {
+      let returnObj = this.state;
+
+      returnObj[this.state.currentPole]['duration'] = returnObj[this.state.currentPole][name].duration > value ?
+        returnObj[this.state.currentPole]['duration'] - ((returnObj[this.state.currentPole][name].duration - value) / 1000) :
+        returnObj[this.state.currentPole]['duration'] + ((value - returnObj[this.state.currentPole][name].duration) / 1000);
+
+      returnObj[this.state.currentPole][name].duration = value;
+      return returnObj;
+    }; 
+
+    this.setState(stateObject);
+  }
+
+  togglePole = () => {
+    let newPole = this.state.currentPole === 'NorthPole' ? 'SouthPole' : 'NorthPole';
+
+    this.setState({
+      currentPole: newPole
+    });
+  }
+
+  handleFadeSpeedChange = (value) => {
+    let stateObject = function() {
+      let returnObj = this.state;
+
+      returnObj[this.state.currentPole].fadeSpeed = value;
+
+      return returnObj;
+    }; 
+
+    this.setState(stateObject);
+  }
+
+  handleFadeToNextChange = (item) => {
+    let stateObject = function() {
+      let returnObj = this.state;
+
+      returnObj[this.state.currentPole][item].fadeToNextColor = returnObj[this.state.currentPole][item].fadeToNextColor ? false : true;
+
+      return returnObj;
+    }; 
+
+    this.setState(stateObject);
+  }
 
   render() {
     const ballParts = ['northSequences', 'southSequences'];
@@ -195,63 +329,95 @@ class BallEditor extends Component {
     );    
 
     return (
-      <div>
-        <button 
-          onClick={this.openNameModal}
-        >
-          <FontAwesome name='plus' />
-        </button>
-        <NameModal />          
-        {ballParts.map((ballPart, index) => (
-          <DragDropContext key={index} onDragEnd={this.onDragEnd}>
-            <Droppable droppableId={ballPart} direction="vertical">
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  style={getListStyle(snapshot.isDraggingOver)}
-                >
-                  {this.state[ballPart].sequences && this.state[ballPart].sequences.length ? 
-                    this.state[ballPart].sequences.map((sequence, index) => (
-                      <Draggable key={index} draggableId={index} index={index}>
-                        {(provided, snapshot) => (
-                          <div>
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              style={getItemStyle(
-                                snapshot.isDragging,
-                                provided.draggableProps.style,
-                              )}
-                            >
-                              <header>
-                                <h3>{sequence.displayName}</h3>
-                                <label 
-                                  htmlFor="remove-sequence">Remove color
-                                  <button
-                                    onClick={() => this.removeSequence(sequence, index, ballPart)} 
-                                  >
-                                    <FontAwesome                         
-                                      name='minus' 
-                                    />
-                                  </button>
-                                </label>                              
-                              </header>
-                            </div>
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Draggable>
-                    )) :
-                    'Add A Sequence!'
+      <div className="container">
+        {this.state.currentSequence ?
+          <Controls 
+           handleFadeSpeedChange={this.handleFadeSpeedChange}
+           addColor={this.addColor}
+           onDragEnd={this.onDragEnd}
+           removeColor={this.removeColor}
+           handleFadeToNextChange={this.handleFadeToNextChange}
+           handleColorChange={this.handleColorChange}
+           handleTimeChange={this.handleTimeChange}
+           sequence={this.state.sequenceData[this.state.currentSequence.id]}
+          /> :
+          <div className="sequenceContainer">
+            <button 
+              onClick={this.openNameModal}
+            >
+              <FontAwesome name='plus' />
+            </button>
+            <NameModal />          
+            {ballParts.map((ballPart, index) => (
+              <div className="columns" key={index}>
+                <header>
+                  {ballPart === 'northSequences' ?
+                    <h2>North Pole</h2> :
+                    <h2>South Pole</h2>
                   }
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext> 
-        ))}                     
-      </div>
+                </header>
+                <DragDropContext onDragEnd={this.onSequenceDragEnd}>
+                  <Droppable droppableId={ballPart} direction="vertical">
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        style={getListStyle(snapshot.isDraggingOver)}
+                      >
+                        {this.state[ballPart].sequences && this.state[ballPart].sequences.length ? 
+                          this.state[ballPart].sequences.map((sequence, index) => (
+                            <Draggable key={index} draggableId={index} index={index}>
+                              {(provided, snapshot) => (
+                                <div>
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    style={getItemStyle(
+                                      snapshot.isDragging,
+                                      provided.draggableProps.style,
+                                    )}
+                                  >
+                                    <header>
+                                      <h3>{sequence.displayName}</h3>
+                                      <label 
+                                        htmlFor="remove-sequence">Remove sequence
+                                        <button
+                                          onClick={() => this.removeSequence(sequence, index, ballPart)} 
+                                        >
+                                          <FontAwesome                         
+                                            name='minus' 
+                                          />
+                                        </button>
+                                      </label>
+                                      <label 
+                                        htmlFor="edit-sequence">Edit sequence
+                                        <button
+                                          onClick={() => this.editSequence(sequence)} 
+                                        >
+                                          <FontAwesome                         
+                                            name='pencil' 
+                                          />
+                                        </button>
+                                      </label>                              
+                                    </header>
+                                  </div>
+                                  {provided.placeholder}
+                                </div>
+                              )}
+                            </Draggable>
+                          )) :
+                          'Add A Sequence!'
+                        }
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              </div>
+            ))}                     
+          </div>
+        }
+      </div>      
     )
   }
 }
