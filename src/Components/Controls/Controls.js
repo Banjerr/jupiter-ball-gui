@@ -3,6 +3,7 @@ import Ball from '../Ball/Ball.js';
 import './Controls.css';
 import FontAwesome from 'react-fontawesome';
 import { SketchPicker } from 'react-color';
+import { Button, Icon, Checkbox } from 'semantic-ui-react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -50,15 +51,12 @@ class Controls extends Component {
             onChange={this.props.handleFadeSpeedChange}
           />
 
-          <label htmlFor="add-color">Add color
-            <button
-              onClick={this.props.addColor} 
-            >
-              <FontAwesome                 
-                name='plus' 
-              />
-            </button>
-          </label> 
+          <Button onClick={this.props.addColor} animated>
+            <Button.Content visible>Add Color</Button.Content>
+            <Button.Content hidden>
+              <Icon name='plus' />
+            </Button.Content>
+          </Button>
           
           <DragDropContext onDragEnd={this.props.onDragEnd}>
             <Droppable droppableId={this.props.sequence.id} direction="horizontal">
@@ -95,54 +93,57 @@ class Controls extends Component {
           </DragDropContext>
         </section>
 
-        {this.props.colorEditMode ? 
-          <section>
-            <header>
-              <h3>Color #{this.props.editingThisColor.index + 1}</h3>
-              <label 
-                htmlFor="remove-color">Remove color
-                <button
-                  onClick={() => this.props.removeColor(this.props.editingThisColor.id, this.props.editingThisColor.index)} 
-                >
-                  <FontAwesome                         
-                    name='minus' 
-                  />
-                </button>
-              </label>
-              <label 
-                htmlFor="fade-to-next">Fade Into Next Color?
-                <input 
-                  type='checkbox' id="fade-to-next" value={this.props.sequence[this.props.editingThisColor.id].fadeToNextColor}   
-                  defaultChecked={true} 
-                  onClick={() => this.props.handleFadeToNextChange(this.props.editingThisColor.id)} />
-              </label>                                
-            </header>
-            
-            <SketchPicker
-              disableAlpha={true}
-              contenteditable={true}
-              color={this.props.sequence[this.props.editingThisColor.id].color}
-              onChangeComplete={ this.props.handleColorChange(this.props.editingThisColor.id) }
-            />
+        <div className="row">
+          {this.props.colorEditMode ? 
+            <section className="half-width">
+              <header>
+                <h3>Color #{this.props.editingThisColor.index + 1}</h3>
+                
+                <Button onClick={() => this.props.removeColor(this.props.editingThisColor.id, this.props.editingThisColor.index)}  animated>
+                  <Button.Content visible>Remove Color</Button.Content>
+                  <Button.Content hidden>
+                    <Icon name='minus' />
+                  </Button.Content>
+                </Button>
+                
+                <Checkbox label="Fade Into Next Color" 
+                  type='checkbox' id="fade-to-next"   
+                  checked={this.props.sequence[this.props.editingThisColor.id].fadeToNextColor ? true : false}
+                  onChange={() => this.props.handleFadeToNextChange(this.props.editingThisColor.id)} 
+                />
+              </header>
+              
+              <SketchPicker
+                disableAlpha={true}
+                contenteditable={true}
+                color={this.props.sequence[this.props.editingThisColor.id].color}
+                onChangeComplete={ this.props.handleColorChange(this.props.editingThisColor.id) }
+              />
 
-            <h3>Time in milliseconds: {this.props.sequence[this.props.editingThisColor.id].duration}</h3>
-            <SliderTooltip 
-              max={1000}
-              min={1}
-              onAfterChange={this.props.handleTimeChange(this.props.editingThisColor.id)}
-            />
-          </section> :
-          <p>Click a color above to edit</p>
-        }
+              <h3>Time in milliseconds: {this.props.sequence[this.props.editingThisColor.id].duration}</h3>
+              <SliderTooltip 
+                max={1000}
+                min={1}
+                value={this.props.sequence[this.props.editingThisColor.id].duration}
+                onChange={this.props.handleTimeChange(this.props.editingThisColor.id)}
+              />
+            </section> :
+            <section className="half-width">
+              <p>Click a color above to edit</p>
+            </section>
+          }
 
-        <Ball 
-          northColors={this.props.sequence.northPole ? this.props.sequence.colorList.map((color) => color = this.props.sequence[color]) : null}
-          northDuration={this.props.sequence.northPole ? this.props.sequence.duration : null}
-          northFade={this.props.sequence.northPole ? this.props.sequence.fadeSpeed : null}
-          southColors={this.props.sequence.southPole ? this.props.sequence.colorList.map((color) => color = this.props.sequence[color]) : null}
-          southDuration={this.props.sequence.southPole ? this.props.sequence.duration : null}
-          southFade={this.props.sequence.southPole ? this.props.sequence.fadeSpeed : null}
-        />
+          <div className="half-width">
+            <Ball 
+              northColors={this.props.sequence.northPole ? this.props.sequence.colorList.map((color) => color = this.props.sequence[color]) : null}
+              northDuration={this.props.sequence.northPole ? this.props.sequence.duration : null}
+              northFade={this.props.sequence.northPole ? this.props.sequence.fadeSpeed : null}
+              southColors={this.props.sequence.southPole ? this.props.sequence.colorList.map((color) => color = this.props.sequence[color]) : null}
+              southDuration={this.props.sequence.southPole ? this.props.sequence.duration : null}
+              southFade={this.props.sequence.southPole ? this.props.sequence.fadeSpeed : null}
+            />
+          </div>
+        </div>        
       </div>
     );
   }

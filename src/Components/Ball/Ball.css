@@ -3,7 +3,7 @@
   width: 400px;
   clip-path: circle(200px at center);
   position: relative;
-  margin: 0 auto;
+  margin: 0 2%;
 }
 
 .Ball:after {
@@ -17,6 +17,21 @@
   left: 0;
   bottom: 0;
   right: 0;
+}
+
+.Controls .row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.Controls .row .half-width {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
 
 .NorthPole, .SouthPole {

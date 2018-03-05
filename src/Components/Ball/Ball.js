@@ -75,12 +75,12 @@ class Ball extends Component {
     let northFadeSpeed = this.props.northDuration / (this.props.northFade / 100),
       southFadeSpeed = this.props.southDuration / (this.props.southFade / 100);
 
-    if (this.props.northColors && this.props.northColors[0].duration > 0) {
+    if (this.props.northColors.length > 0 && this.props.northColors[0].duration > 0) {
       let styleObj = this.createNorthHemisphereStyle();
       injectStyle(styleObj, 'north');
     }
     
-    if (this.props.southColors && this.props.southColors[0].duration > 0) {
+    if (this.props.southColors.length > 0 && this.props.southColors[0].duration > 0) {
       let styleObj = this.createSouthHemisphereStyle();
       injectStyle(styleObj, 'south');
     }    
