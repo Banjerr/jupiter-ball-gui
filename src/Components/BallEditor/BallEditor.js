@@ -309,7 +309,7 @@ class BallEditor extends Component {
     this.setState(stateObject);
   }
 
-  exitSequenceEditor = () => this.setState({currentSequence: null, colorEditMode: false});
+  exitSequenceEditor = () => this.setState({currentSequence: null, colorEditMode: false, currentNameValue: null});
 
   copyToOppositePole = (ballPart) => {
     if (!this.state[ballPart].sequences) return;
