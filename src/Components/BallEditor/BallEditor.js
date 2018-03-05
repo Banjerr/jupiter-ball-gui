@@ -408,80 +408,82 @@ class BallEditor extends Component {
               editingThisColor={this.state.editingThisColor}
             />
           </div> :
-          <div className="sequenceContainer">
+          <div>
             <Button onClick={this.openNameModal} animated>
               <Button.Content visible>Add Sequence</Button.Content>
               <Button.Content hidden>
                 <Icon name='plus' />
               </Button.Content>
             </Button>
-            <NameModal />          
-            {ballParts.map((ballPart, index) => (
-              <div className="columns" key={index}>
-                <header>
-                  {ballPart === 'northSequences' ?
-                    <h2>North Pole</h2> :
-                    <h2>South Pole</h2>
-                  }
-                  <Button onClick={() => this.copyToOppositePole(ballPart)} animated>
-                    <Button.Content visible>Copy To {ballPart === 'northSequences' ? 'South' : 'North'}</Button.Content>
-                    <Button.Content hidden>
-                      <Icon name='copy' />
-                    </Button.Content>
-                  </Button><br />
-                </header>
-                <DragDropContext onDragEnd={this.onSequenceDragEnd}>
-                  <Droppable droppableId={ballPart} direction="vertical">
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        style={getListStyle(snapshot.isDraggingOver)}
-                      >
-                        {this.state[ballPart].sequences && this.state[ballPart].sequences.length ? 
-                          this.state[ballPart].sequences.map((sequence, index) => (
-                            <Draggable key={index} draggableId={index} index={index}>
-                              {(provided, snapshot) => (
-                                <div className="full-width">
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    style={getItemStyle(
-                                      snapshot.isDragging,
-                                      provided.draggableProps.style,
-                                    )}
-                                  >
-                                    <header>
-                                      <h3>{sequence.displayName}</h3>
-                                      <Button onClick={() => this.editSequence(sequence)}  animated>
-                                        <Button.Content visible>Edit</Button.Content>
-                                        <Button.Content hidden>
-                                          <Icon name='pencil' />
-                                        </Button.Content>
-                                      </Button><br /> 
-                                      <Button onClick={() => this.removeSequence(sequence, index, ballPart)}  animated>
-                                        <Button.Content visible>Delete</Button.Content>
-                                        <Button.Content hidden>
-                                          <Icon name='trash' />
-                                        </Button.Content>
-                                      </Button>
-                                    </header>
+            <div className="sequenceContainer">            
+              <NameModal />          
+              {ballParts.map((ballPart, index) => (
+                <div className="columns" key={index}>
+                  <header>
+                    {ballPart === 'northSequences' ?
+                      <h2>North Pole</h2> :
+                      <h2>South Pole</h2>
+                    }
+                    <Button onClick={() => this.copyToOppositePole(ballPart)} animated>
+                      <Button.Content visible>Copy To {ballPart === 'northSequences' ? 'South' : 'North'}</Button.Content>
+                      <Button.Content hidden>
+                        <Icon name='copy' />
+                      </Button.Content>
+                    </Button><br />
+                  </header>
+                  <DragDropContext onDragEnd={this.onSequenceDragEnd}>
+                    <Droppable droppableId={ballPart} direction="vertical">
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          style={getListStyle(snapshot.isDraggingOver)}
+                        >
+                          {this.state[ballPart].sequences && this.state[ballPart].sequences.length ? 
+                            this.state[ballPart].sequences.map((sequence, index) => (
+                              <Draggable key={index} draggableId={index} index={index}>
+                                {(provided, snapshot) => (
+                                  <div className="full-width">
+                                    <div
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      style={getItemStyle(
+                                        snapshot.isDragging,
+                                        provided.draggableProps.style,
+                                      )}
+                                    >
+                                      <header>
+                                        <h3>{sequence.displayName}</h3>
+                                        <Button onClick={() => this.editSequence(sequence)}  animated>
+                                          <Button.Content visible>Edit</Button.Content>
+                                          <Button.Content hidden>
+                                            <Icon name='pencil' />
+                                          </Button.Content>
+                                        </Button><br /> 
+                                        <Button onClick={() => this.removeSequence(sequence, index, ballPart)}  animated>
+                                          <Button.Content visible>Delete</Button.Content>
+                                          <Button.Content hidden>
+                                            <Icon name='trash' />
+                                          </Button.Content>
+                                        </Button>
+                                      </header>
+                                    </div>
+                                    {provided.placeholder}
                                   </div>
-                                  {provided.placeholder}
-                                </div>
-                              )}
-                            </Draggable>
-                          )) :
-                          'Add A Sequence!'
-                        }
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </DragDropContext>
-              </div>
-            ))}                     
-          </div>
+                                )}
+                              </Draggable>
+                            )) :
+                            'Add A Sequence!'
+                          }
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  </DragDropContext>
+                </div>
+              ))}                     
+            </div>
+          </div>          
         }
       </div>      
     )
