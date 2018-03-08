@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import FontAwesome from 'react-fontawesome';
-import { Button, Modal, Form, Checkbox, Input, Icon } from 'semantic-ui-react';
+import { Button, Modal, Form, Checkbox, Input, Icon, Confirm } from 'semantic-ui-react';
 import Controls from '../Controls/Controls.js';
 import './BallEditor.css';
 
@@ -32,7 +32,7 @@ const getListStyle = isDraggingOver => ({
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'flex-start',
-  alignItems: 'flex-start',
+  alignItems: 'center',
   background: 'rgba(0, 0, 0, 0.1)',
   padding: `${grid}px`,
   maxHeight: '800px',
@@ -52,12 +52,13 @@ class BallEditor extends Component {
       },
       currentSequence: null,
       currentNameValue: '',
-      currentNameAddNorth: false,
-      currentNameAddSouth: false,
       nameModalOpen: false,
       sequenceData: {},
       colorEditMode: false,
-      editingThisColor: null
+      editingThisColor: null,
+      addingSequenceTo: null,
+      confirmationOpen: false,
+      addingBallPartTo: null
     }
 
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -78,18 +79,18 @@ class BallEditor extends Component {
 
       let objectSafeSequenceName = this.state.currentNameValue.replace(/\s+/g, '-').toLowerCase() + '-' + + Date.now();
       
-      if (returnObj.currentNameAddNorth) {
+      if (this.state.addingSequenceTo === 'northSequences') {
         returnObj.northSequences.sequences.push({id: objectSafeSequenceName, displayName: this.state.currentNameValue});
       }
 
-      if (returnObj.currentNameAddSouth) {
+      if (this.state.addingSequenceTo === 'southSequences') {
         returnObj.southSequences.sequences.push({id: objectSafeSequenceName, displayName: this.state.currentNameValue});
       }
 
       returnObj.sequenceData[objectSafeSequenceName] = {
         displayName: this.state.currentNameValue,
-        northPole: returnObj.currentNameAddNorth ? true : false,
-        southPole: returnObj.currentNameAddSouth ? true :false,
+        northPole: this.state.addingSequenceTo === 'northSequences' ? true : false,
+        southPole: this.state.addingSequenceTo === 'southSequences' ? true :false,
         id: objectSafeSequenceName,
         duration: 0,
         fadeSpeed: 100,
@@ -97,15 +98,13 @@ class BallEditor extends Component {
         colorList: ['color1'],
         color1: {
           color: '#ffffff',
-          duration: 0,
+          duration: 1,
           id: 'color1',
           fadeToNextColor: true
         }
       };
 
       returnObj.nameModalOpen = false;
-      returnObj.currentNameAddNorth = false;
-      returnObj.currentNameAddSouth = false;
       returnObj.currentSequence = returnObj.sequenceData[objectSafeSequenceName];
       returnObj.editingThisColor = returnObj.sequenceData[objectSafeSequenceName].color1;
       returnObj.editingThisColor.index = 0;
@@ -170,15 +169,11 @@ class BallEditor extends Component {
 
   updateName = (event) => this.setState({ currentNameValue: event.target.value });
 
-  openNameModal = () => this.setState({nameModalOpen: true});
+  openNameModal = (ballPart) => this.setState({nameModalOpen: true, addingSequenceTo: ballPart});
 
-  closeNameModal = () => this.setState({nameModalOpen: false});
+  closeNameModal = () => this.setState({nameModalOpen: false, addingSequenceTo: null});
 
   editSequence = (sequence) => this.setState({currentSequence: sequence});
-
-  handlePoleCheck = (addToNorth) => addToNorth ? 
-    this.setState({currentNameAddNorth: !this.state.currentNameAddNorth}) :
-    this.setState({currentNameAddSouth: !this.state.currentNameAddSouth});
 
   /* Sequence Editor Methods */
 
@@ -213,7 +208,7 @@ class BallEditor extends Component {
       returnObj.sequenceData[this.state.currentSequence.id]['colorList'].push(newPropName);
       returnObj.sequenceData[this.state.currentSequence.id][newPropName] = {
         color: '#ffffff',
-        duration: 0,
+        duration: 1,
         id: newPropName,
         fadeToNextColor: true,
         index: currentColorNumber
@@ -311,7 +306,15 @@ class BallEditor extends Component {
 
   exitSequenceEditor = () => this.setState({currentSequence: null, colorEditMode: false, currentNameValue: null});
 
-  copyToOppositePole = (ballPart) => {
+  showCopyConfirmation = (ballPart) => this.setState({confirmationOpen: true, addingBallPartTo: ballPart});
+
+  handleCopyConfirm = () => this.setState({confirmationOpen: false}, this.copyToOppositePole());
+
+  handleCopyCancel = () => this.setState({confirmationOpen: false, addingBallPartTo: null});
+
+  copyToOppositePole = () => {
+    let ballPart = this.state.addingBallPartTo;
+
     if (!this.state[ballPart].sequences) return;
 
     let copyThese = this.state[ballPart].sequences.slice(0),
@@ -370,12 +373,6 @@ class BallEditor extends Component {
                 }} 
               />
             </Form.Field>
-            <Form.Field>
-              <Checkbox checked={this.state.currentNameAddNorth ? true : false} onChange={() => this.handlePoleCheck(true)} label='Add To North Pole' />
-            </Form.Field>
-            <Form.Field>
-              <Checkbox checked={this.state.currentNameAddSouth ? true : false} onChange={() => this.handlePoleCheck(false)} label='Add To South Pole' />
-            </Form.Field>
           </Form>          
         </Modal.Content>
         <Modal.Actions>
@@ -386,6 +383,12 @@ class BallEditor extends Component {
 
     return (
       <div className="container">
+        <Confirm
+          open={this.state.confirmationOpen}
+          onCancel={this.handleCopyCancel}
+          onConfirm={this.handleCopyConfirm}
+          content={this.state.addingBallPartTo === 'northSequences' ? 'Are you sure? This will replace the entire South Pole' : 'Are you sure? This will replace the entire North Pole'}
+        />
         {this.state.currentSequence ?
           <div>
             <Button onClick={this.exitSequenceEditor} animated>
@@ -393,7 +396,7 @@ class BallEditor extends Component {
               <Button.Content hidden>
                 <Icon name='left arrow' />
               </Button.Content>
-            </Button>
+            </Button><br />
             <Controls 
               handleFadeSpeedChange={this.handleFadeSpeedChange}
               addColor={this.addColor}
@@ -408,13 +411,7 @@ class BallEditor extends Component {
               editingThisColor={this.state.editingThisColor}
             />
           </div> :
-          <div>
-            <Button onClick={this.openNameModal} animated>
-              <Button.Content visible>Add Sequence</Button.Content>
-              <Button.Content hidden>
-                <Icon name='plus' />
-              </Button.Content>
-            </Button>
+          <div>            
             <div className="sequenceContainer">            
               <NameModal />          
               {ballParts.map((ballPart, index) => (
@@ -424,12 +421,20 @@ class BallEditor extends Component {
                       <h2>North Pole</h2> :
                       <h2>South Pole</h2>
                     }
-                    <Button onClick={() => this.copyToOppositePole(ballPart)} animated>
-                      <Button.Content visible>Copy To {ballPart === 'northSequences' ? 'South' : 'North'}</Button.Content>
-                      <Button.Content hidden>
-                        <Icon name='copy' />
-                      </Button.Content>
-                    </Button><br />
+                    <span>
+                      <Button onClick={() => this.openNameModal(ballPart)} animated>
+                        <Button.Content visible>Add Sequence</Button.Content>
+                        <Button.Content hidden>
+                          <Icon name='plus' />
+                        </Button.Content>
+                      </Button>
+                      <Button onClick={() => this.showCopyConfirmation(ballPart)} animated>
+                        <Button.Content visible>Copy All To {ballPart === 'northSequences' ? 'South' : 'North'}</Button.Content>
+                        <Button.Content hidden>
+                          <Icon name='copy' />
+                        </Button.Content>
+                      </Button>                    
+                    </span><br />                  
                   </header>
                   <DragDropContext onDragEnd={this.onSequenceDragEnd}>
                     <Droppable droppableId={ballPart} direction="vertical">
@@ -454,18 +459,20 @@ class BallEditor extends Component {
                                     >
                                       <header>
                                         <h3>{sequence.displayName}</h3>
-                                        <Button onClick={() => this.editSequence(sequence)}  animated>
-                                          <Button.Content visible>Edit</Button.Content>
-                                          <Button.Content hidden>
-                                            <Icon name='pencil' />
-                                          </Button.Content>
-                                        </Button><br /> 
-                                        <Button onClick={() => this.removeSequence(sequence, index, ballPart)}  animated>
-                                          <Button.Content visible>Delete</Button.Content>
-                                          <Button.Content hidden>
-                                            <Icon name='trash' />
-                                          </Button.Content>
-                                        </Button>
+                                        <span>
+                                          <Button onClick={() => this.editSequence(sequence)}  animated>
+                                            <Button.Content visible>Edit</Button.Content>
+                                            <Button.Content hidden>
+                                              <Icon name='pencil' />
+                                            </Button.Content>
+                                          </Button>
+                                          <Button onClick={() => this.removeSequence(sequence, index, ballPart)}  animated>
+                                            <Button.Content visible>Delete</Button.Content>
+                                            <Button.Content hidden>
+                                              <Icon name='trash' />
+                                            </Button.Content>
+                                          </Button>                                          
+                                        </span>      
                                       </header>
                                     </div>
                                     {provided.placeholder}

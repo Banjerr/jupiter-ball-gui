@@ -56,7 +56,7 @@ class Controls extends Component {
             <Button.Content hidden>
               <Icon name='plus' />
             </Button.Content>
-          </Button>
+          </Button><br />
           
           <DragDropContext onDragEnd={this.props.onDragEnd}>
             <Droppable droppableId={this.props.sequence.id} direction="horizontal">
@@ -122,7 +122,7 @@ class Controls extends Component {
 
               <h3>Time in milliseconds: {this.props.sequence[this.props.editingThisColor.id].duration}</h3>
               <SliderTooltip 
-                max={1000}
+                max={9999}
                 min={1}
                 value={this.props.sequence[this.props.editingThisColor.id].duration}
                 onChange={this.props.handleTimeChange(this.props.editingThisColor.id)}
