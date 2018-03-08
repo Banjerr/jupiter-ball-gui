@@ -49,14 +49,14 @@ class Controls extends Component {
             min={1}
             value={this.props.sequence.fadeSpeed}
             onChange={this.props.handleFadeSpeedChange}
-          />
+          /><br />
 
           <Button onClick={this.props.addColor} animated>
             <Button.Content visible>Add Color</Button.Content>
             <Button.Content hidden>
               <Icon name='plus' />
             </Button.Content>
-          </Button><br />
+          </Button><br /><br />
           
           <DragDropContext onDragEnd={this.props.onDragEnd}>
             <Droppable droppableId={this.props.sequence.id} direction="horizontal">

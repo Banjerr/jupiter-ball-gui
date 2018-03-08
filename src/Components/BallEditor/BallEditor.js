@@ -58,7 +58,8 @@ class BallEditor extends Component {
       editingThisColor: null,
       addingSequenceTo: null,
       confirmationOpen: false,
-      addingBallPartTo: null
+      addingBallPartTo: null,
+      editingThisPole: null
     }
 
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -115,6 +116,29 @@ class BallEditor extends Component {
     this.setState( stateObject ); 
   }
 
+  copySequence = (sequence, index, ballPart) => {
+    let copyTo = ballPart === 'northSequences' ? 'southSequences' : 'northSequences',
+      alreadyThere = [];
+    alreadyThere = this.state[copyTo].sequences.filter((seq) => {
+      if (sequence.id === seq.id) return seq;
+    });
+    if (alreadyThere.length > 0) {
+      return
+    }
+    else {
+      let stateObject = function() {
+        let returnObj = this.state;
+        returnObj[copyTo].sequences.push(sequence);
+        returnObj.sequenceData[sequence.id].northPole = true;
+        returnObj.sequenceData[sequence.id].southPole = true;
+        
+        return returnObj;
+      }
+    
+      this.setState( stateObject ); 
+    }
+  }
+
   removeSequence = (sequence, index, ballPart) => {
     let currentSequenceList = this.state[ballPart].sequences;
 
@@ -167,7 +191,34 @@ class BallEditor extends Component {
     this.setState( stateObject ); 
   }
 
-  updateName = (event) => this.setState({ currentNameValue: event.target.value });
+  updateName = (event) => this.setState({ currentNameValue: event.target.value});
+
+  openRenameModal = (sequence, ballPart) => this.setState({ editingThisSequence: sequence, renameModalOpen: true, editingThisPole: ballPart });
+
+  closeRenameModal = () => this.setState({ editingThisSequence: '', currentNameValue: '', renameModalOpen: false, editingThisPole: null });
+
+  renameSequence = () => {
+    let stateObject = function() {
+      let returnObj = this.state;
+
+      returnObj[this.state.editingThisPole].sequences.map((seq) => {
+        if (seq.displayName === this.state.editingThisSequence.displayName) {
+          seq.displayName = this.state.currentNameValue;
+        }
+      });
+
+      returnObj.sequenceData
+      returnObj.sequenceData[this.state.editingThisSequence.id].displayName = this.state.currentNameValue;
+      returnObj.currentNameValue = '';
+      returnObj.editingThisSequence = '';
+      returnObj.renameModalOpen = false;
+      returnObj.editingThisPole = null;
+
+      return returnObj;
+    }
+  
+    this.setState( stateObject ); 
+  }
 
   openNameModal = (ballPart) => this.setState({nameModalOpen: true, addingSequenceTo: ballPart});
 
@@ -304,7 +355,7 @@ class BallEditor extends Component {
     this.setState(stateObject);
   }
 
-  exitSequenceEditor = () => this.setState({currentSequence: null, colorEditMode: false, currentNameValue: null});
+  exitSequenceEditor = () => this.setState({currentSequence: null, colorEditMode: false, currentNameValue: ''});
 
   showCopyConfirmation = (ballPart) => this.setState({confirmationOpen: true, addingBallPartTo: ballPart});
 
@@ -379,7 +430,33 @@ class BallEditor extends Component {
           <Button type='submit' positive icon='checkmark' labelPosition='right' content='Create Sequence' onClick={this.addSequence} />
         </Modal.Actions>
       </Modal>
-    );    
+    ); 
+    
+    const RenameModal = () => (
+      <Modal open={this.state.renameModalOpen} onClose={this.closeRenameModal} size={'tiny'} >
+        <Modal.Header>
+          Rename {this.state.editingThisSequence ? this.state.editingThisSequence.displayName : 'sequences'}
+        </Modal.Header>
+        <Modal.Content>
+          <p>Choose a new name for this sequence. <span role="img" aria-label="smiley">🙌</span></p>
+          <Form key='sequence-name-form'>
+            <Form.Field>
+              <label>Sequence Name</label>
+              <Input key='sequence-name-input' autoFocus type="text" id="name-input" onChange={(e) => this.updateName(e)} value={this.state.currentNameValue} placeholder="Sequence Name Here" 
+                onFocus={function(e) {
+                  var val = e.target.value;
+                  e.target.value = '';
+                  e.target.value = val;
+                }} 
+              />
+            </Form.Field>
+          </Form>          
+        </Modal.Content>
+        <Modal.Actions>
+          <Button type='submit' positive icon='checkmark' labelPosition='right' content='Create Sequence' onClick={this.renameSequence} />
+        </Modal.Actions>
+      </Modal>
+    )
 
     return (
       <div className="container">
@@ -389,6 +466,7 @@ class BallEditor extends Component {
           onConfirm={this.handleCopyConfirm}
           content={this.state.addingBallPartTo === 'northSequences' ? 'Are you sure? This will replace the entire South Pole' : 'Are you sure? This will replace the entire North Pole'}
         />
+        <RenameModal />
         {this.state.currentSequence ?
           <div>
             <Button onClick={this.exitSequenceEditor} animated>
@@ -396,7 +474,7 @@ class BallEditor extends Component {
               <Button.Content hidden>
                 <Icon name='left arrow' />
               </Button.Content>
-            </Button><br />
+            </Button><br /><br />
             <Controls 
               handleFadeSpeedChange={this.handleFadeSpeedChange}
               addColor={this.addColor}
@@ -458,12 +536,18 @@ class BallEditor extends Component {
                                       )}
                                     >
                                       <header>
-                                        <h3>{sequence.displayName}</h3>
+                                        <h3 onClick={() => this.openRenameModal(sequence, ballPart)}>{sequence.displayName}</h3>
                                         <span>
                                           <Button onClick={() => this.editSequence(sequence)}  animated>
                                             <Button.Content visible>Edit</Button.Content>
                                             <Button.Content hidden>
                                               <Icon name='pencil' />
+                                            </Button.Content>
+                                          </Button>
+                                          <Button className='copySequenceBtn' onClick={() => this.copySequence(sequence, index, ballPart)}  animated>
+                                            <Button.Content visible>Copy</Button.Content>
+                                            <Button.Content hidden>
+                                              <Icon name='copy' />
                                             </Button.Content>
                                           </Button>
                                           <Button onClick={() => this.removeSequence(sequence, index, ballPart)}  animated>
@@ -473,7 +557,7 @@ class BallEditor extends Component {
                                             </Button.Content>
                                           </Button>                                          
                                         </span>      
-                                      </header>
+                                      </header>                                      
                                     </div>
                                     {provided.placeholder}
                                   </div>
