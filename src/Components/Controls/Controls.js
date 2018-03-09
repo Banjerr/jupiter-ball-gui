@@ -3,7 +3,7 @@ import Ball from '../Ball/Ball.js';
 import './Controls.css';
 import FontAwesome from 'react-fontawesome';
 import { SketchPicker } from 'react-color';
-import { Button, Icon, Checkbox } from 'semantic-ui-react';
+import { Button, Icon, Checkbox, Reveal } from 'semantic-ui-react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -39,8 +39,13 @@ class Controls extends Component {
     return (
       <div 
         className="Controls">
-        <section>
-          <h3>{this.props.sequence.displayName}</h3>
+        <section>          
+          <Button onClick={() => this.props.openRenameModal(this.props.sequence)}  animated>
+            <Button.Content visible><h3>{this.props.sequence.displayName}</h3></Button.Content>
+            <Button.Content hidden>
+              <Icon name='pencil' />
+            </Button.Content>
+          </Button><br /><br />
           <p>Number of colors: {this.props.sequence.colorNumber}</p>
           <p>Length of sequence (in seconds): {round(this.props.sequence.duration)}</p>
           <label>Overall fade speed: {this.props.sequence.fadeSpeed}% (default is 100%)</label>
