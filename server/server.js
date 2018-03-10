@@ -32,7 +32,7 @@ App.register([Inert], err => {
     handler: function (request, reply) {
       console.log('request payload is ', request.payload);
 
-      
+      return reply().code(204);
     }
   });
 

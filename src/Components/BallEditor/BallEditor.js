@@ -5,6 +5,80 @@ import Controls from '../Controls/Controls.js';
 import SettingsModal from './SettingsModal.js';
 import './BallEditor.css';
 
+const formatToday = () => {
+  var today = new Date();
+  var dd = today.getDate();
+
+  var mm = today.getMonth()+1; 
+  var yyyy = today.getFullYear().toString().substr(-2);
+
+  if(dd<10) 
+  {
+      dd='0'+dd;
+  } 
+
+  if(mm<10) 
+  {
+      mm='0'+mm;
+  }
+
+  today = `${mm}/${dd}/${yyyy}`;
+
+  return today;
+}
+
+const formatTime = () => {
+  let time = new Date();
+
+  let newTime = ("0" + time.getHours()).slice(-2)   + ":" + 
+  ("0" + time.getMinutes()).slice(-2) + ":" + 
+  ("0" + time.getSeconds()).slice(-2);
+
+  return newTime;
+}
+
+const padNumber = (number, length) => {
+  var str = '' + number;
+
+  while (str.length < length) {
+      str = '0' + str;
+  }
+ 
+  return str;
+}
+
+const createDownload = (data, filename, mime) => {
+  var blob = new Blob([data], {type: mime || 'application/octet-stream'});
+
+  if (typeof window.navigator.msSaveBlob !== 'undefined') {
+      // IE workaround for "HTML7007: One or more blob URLs were 
+      // revoked by closing the blob for which they were created. 
+      // These URLs will no longer resolve as the data backing 
+      // the URL has been freed."
+      window.navigator.msSaveBlob(blob, filename);
+  }
+  else {
+      var blobURL = window.URL.createObjectURL(blob);
+      var tempLink = document.createElement('a');
+      tempLink.style.display = 'none';
+      tempLink.href = blobURL;
+      tempLink.setAttribute('download', filename); 
+      
+      // Safari thinks _blank anchor are pop ups. We only want to set _blank
+      // target if the browser does not support the HTML5 download attribute.
+      // This allows you to download files in desktop safari if pop up blocking 
+      // is enabled.
+      if (typeof tempLink.download === 'undefined') {
+          tempLink.setAttribute('target', '_blank');
+      }
+      
+      document.body.appendChild(tempLink);
+      tempLink.click();
+      document.body.removeChild(tempLink);
+      window.URL.revokeObjectURL(blobURL);
+  }
+}
+
 const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
@@ -81,6 +155,9 @@ class BallEditor extends Component {
   }
 
   createXMLFile = () => {
+    let todays_date = formatToday();
+    let todays_time = formatTime();
+
     let xmlObj = {
       user: this.state.userName || null,
       switch_time: this.state.switch_time || null,
@@ -88,9 +165,55 @@ class BallEditor extends Component {
       start_first: this.state.start_first || null,
       northSequences: this.state.northSequences || null,
       southSequences: this.state.southSequences || null,
-      sequenceData: this.state.sequenceData || null
+      sequenceData: this.state.sequenceData || null,
+      todays_date: todays_date,
+      todays_time: todays_time
     };
+
     console.log(xmlObj);
+
+    let xmlFile = `<?xml version="1.0" encoding="UTF-8"?>
+<SPEEVERS_LIGHT_DATA>
+<STAMP user="${xmlObj.user.padEnd(20, '~')}" date="${xmlObj.todays_date}" time="${xmlObj.todays_time}"></STAMP>
+<SETTINGS switch_time="${xmlObj.switch_time}" program_looping="${xmlObj.program_looping ? 1 : 0}" programs_north="${padNumber(xmlObj.northSequences.sequences.length, 2)}" programs_south="${padNumber(xmlObj.southSequences.sequences.length, 2)}" start_fst="${xmlObj.start_first ? 1 : 0}" place_holder="################################################################################################################################################################################################################################################################################################################################################################################################################"></SETTINGS>
+<PROGRAMS_NORTH>
+${xmlObj.northSequences.sequences.map((seq, index) => {
+return `<PROGRAM serialN="${padNumber((index + 1), 2)}" name="${seq.displayName.padEnd(20, '~')}" elements="${padNumber(xmlObj.sequenceData[seq.id].colorList.length, 4)}" speed="${padNumber(xmlObj.sequenceData[seq.id].fadeSpeed, 3)}%">
+<PROG_DATA>
+${xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
+ return `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@${padNumber(xmlObj.sequenceData[seq.id][color].duration, 4)};`
+})}
+</PROG_DATA>
+</PROGRAM>`
+})}
+</PROGRAMS_NORTH>
+<PROGRAMS_SOUTH>
+${xmlObj.southSequences.sequences.map((seq, index) => {
+return `<PROGRAM serialS="${padNumber((index + 1), 2)}" name="${seq.displayName.padEnd(20, '~')}" elements="${padNumber(xmlObj.sequenceData[seq.id].colorList.length, 4)}" speed="${padNumber(xmlObj.sequenceData[seq.id].fadeSpeed, 3)}%">
+<PROG_DATA>
+${xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
+return `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@${padNumber(xmlObj.sequenceData[seq.id][color].duration, 4)};`
+})}
+</PROG_DATA>
+</PROGRAM>`
+})}
+</PROGRAMS_SOUTH>
+</SPEEVERS_LIGHT_DATA>`;
+    console.log(xmlFile);
+    return createDownload(xmlFile, 'speevers.xml', 'application/xml');
+
+    // fetch('/generateXML', {
+    //   method: "POST",
+    //   body: JSON.stringify(xmlObj),
+    //   headers: {
+    //     "Content-Type": "application/json"
+    //   },
+    //   credentials: "same-origin"
+    // }).then(function(response) {
+    //   return console.log(`${response} is the response`);
+    // }, function(error) {
+    //   console.log('error is ', error.message);
+    // });
   }
 
   /* Settings Methods */
