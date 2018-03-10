@@ -3,7 +3,7 @@ import Ball from '../Ball/Ball.js';
 import './Controls.css';
 import FontAwesome from 'react-fontawesome';
 import { SketchPicker } from 'react-color';
-import { Button, Icon, Checkbox, Reveal } from 'semantic-ui-react';
+import { Button, Icon, Checkbox } from 'semantic-ui-react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -116,7 +116,7 @@ class Controls extends Component {
                   checked={this.props.sequence[this.props.editingThisColor.id].fadeToNextColor ? true : false}
                   onChange={() => this.props.handleFadeToNextChange(this.props.editingThisColor.id)} 
                 />
-              </header>
+              </header><br />
               
               <SketchPicker
                 disableAlpha={true}

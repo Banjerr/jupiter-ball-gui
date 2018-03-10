@@ -5,7 +5,7 @@
 }
 
 .columns {
-  max-width: 400px;
+  max-width: 563.5px;
   width: 100%;  
 }
 
@@ -18,4 +18,23 @@
   flex-direction: column;
   align-items: center;
   align-content: center;
+}
+
+.text-uppercase {
+  text-transform: capitalize;
+}
+
+.appHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.appHeader .settingsBtn {
+  align-self: left;
+}
+
+.appHeader .name {
+  align-self: center;
+  margin: -24px auto 48px;
 }
