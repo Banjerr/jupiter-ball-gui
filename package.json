@@ -9,6 +9,7 @@
     "react": "^16.2.0",
     "react-beautiful-dnd": "^5.0.0",
     "react-color": "^2.14.0",
+    "react-copy-to-clipboard": "^5.0.1",
     "react-dom": "^16.2.0",
     "react-file-download": "^0.3.5",
     "semantic-ui-react": "^0.78.3",

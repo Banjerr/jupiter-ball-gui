@@ -3,8 +3,9 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { Button, Modal, Form, Input, Icon, Confirm } from 'semantic-ui-react';
 import Controls from '../Controls/Controls.js';
 import SettingsModal from './SettingsModal.js';
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 import './BallEditor.css';
-
+// TODO split up into separate components, improve, basically just needed to get it done quickly 🙌
 const formatToday = () => {
   var today = new Date();
   var dd = today.getDate();
@@ -138,7 +139,10 @@ class BallEditor extends Component {
       switch_time: 300,
       settingsModalOpen: false,
       program_looping: true,
-      start_first: false
+      start_first: false,
+      fileGenerationModalOpen: false,
+      xmlFile: null,
+      copiedFile: false
     }
 
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -170,50 +174,49 @@ class BallEditor extends Component {
       todays_time: todays_time
     };
 
-    console.log(xmlObj);
+    let xmlFile = `<?xml version="1.0" encoding="UTF-8"?>\n<SPEEVERS_LIGHT_DATA>\n<STAMP user="${xmlObj.user.padEnd(20, '~')}" date="${xmlObj.todays_date}" time="${xmlObj.todays_time}"></STAMP>\n<SETTINGS switch_time="${xmlObj.switch_time}" program_looping="${xmlObj.program_looping ? 1 : 0}" programs_north="${padNumber(xmlObj.northSequences.sequences.length, 2)}" programs_south="${padNumber(xmlObj.southSequences.sequences.length, 2)}" start_fst="${xmlObj.start_first ? 1 : 0}" place_holder="################################################################################################################################################################################################################################################################################################################################################################################################################"></SETTINGS>\n<PROGRAMS_NORTH>\n`;
+xmlObj.northSequences.sequences.map((seq, index) => {
+  let elementLength = 0;
+  xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
+    if (!xmlObj.sequenceData[seq.id][color].fadeToNextColor) {
+      elementLength++;
+    }
 
-    let xmlFile = `<?xml version="1.0" encoding="UTF-8"?>
-<SPEEVERS_LIGHT_DATA>
-<STAMP user="${xmlObj.user.padEnd(20, '~')}" date="${xmlObj.todays_date}" time="${xmlObj.todays_time}"></STAMP>
-<SETTINGS switch_time="${xmlObj.switch_time}" program_looping="${xmlObj.program_looping ? 1 : 0}" programs_north="${padNumber(xmlObj.northSequences.sequences.length, 2)}" programs_south="${padNumber(xmlObj.southSequences.sequences.length, 2)}" start_fst="${xmlObj.start_first ? 1 : 0}" place_holder="################################################################################################################################################################################################################################################################################################################################################################################################################"></SETTINGS>
-<PROGRAMS_NORTH>
-${xmlObj.northSequences.sequences.map((seq, index) => {
-return `<PROGRAM serialN="${padNumber((index + 1), 2)}" name="${seq.displayName.padEnd(20, '~')}" elements="${padNumber(xmlObj.sequenceData[seq.id].colorList.length, 4)}" speed="${padNumber(xmlObj.sequenceData[seq.id].fadeSpeed, 3)}%">
-<PROG_DATA>
-${xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
- return `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@${padNumber(xmlObj.sequenceData[seq.id][color].duration, 4)};`
-})}
-</PROG_DATA>
-</PROGRAM>`
-})}
-</PROGRAMS_NORTH>
-<PROGRAMS_SOUTH>
-${xmlObj.southSequences.sequences.map((seq, index) => {
-return `<PROGRAM serialS="${padNumber((index + 1), 2)}" name="${seq.displayName.padEnd(20, '~')}" elements="${padNumber(xmlObj.sequenceData[seq.id].colorList.length, 4)}" speed="${padNumber(xmlObj.sequenceData[seq.id].fadeSpeed, 3)}%">
-<PROG_DATA>
-${xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
-return `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@${padNumber(xmlObj.sequenceData[seq.id][color].duration, 4)};`
-})}
-</PROG_DATA>
-</PROGRAM>`
-})}
-</PROGRAMS_SOUTH>
-</SPEEVERS_LIGHT_DATA>`;
-    console.log(xmlFile);
-    return createDownload(xmlFile, 'speevers.xml', 'application/xml');
+    elementLength++;
+  });
+  xmlFile += `<PROGRAM serialN="${padNumber((index + 1), 2)}" name="${seq.displayName.padEnd(20, '~')}" elements="${padNumber(elementLength, 4)}" speed="${padNumber(xmlObj.sequenceData[seq.id].fadeSpeed, 3)}%">\n<PROG_DATA>\n`;
+    xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
+      xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@${padNumber(xmlObj.sequenceData[seq.id][color].duration, 4)};\n`;
 
-    // fetch('/generateXML', {
-    //   method: "POST",
-    //   body: JSON.stringify(xmlObj),
-    //   headers: {
-    //     "Content-Type": "application/json"
-    //   },
-    //   credentials: "same-origin"
-    // }).then(function(response) {
-    //   return console.log(`${response} is the response`);
-    // }, function(error) {
-    //   console.log('error is ', error.message);
-    // });
+      if (!xmlObj.sequenceData[seq.id][color].fadeToNextColor) {
+        xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@0000;\n`;
+      }
+    });
+    xmlFile += `</PROG_DATA>\n</PROGRAM>\n`;
+});
+xmlFile += `</PROGRAMS_NORTH>\n<PROGRAMS_SOUTH>\n`;
+xmlObj.southSequences.sequences.map((seq, index) => {
+  let elementLength = 0;
+  xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
+    if (!xmlObj.sequenceData[seq.id][color].fadeToNextColor) {
+      elementLength++;
+    }
+
+    elementLength++;
+  });
+  xmlFile += `<PROGRAM serialS="${padNumber((index + 1), 2)}" name="${seq.displayName.padEnd(20, '~')}" elements="${padNumber(elementLength, 4)}" speed="${padNumber(xmlObj.sequenceData[seq.id].fadeSpeed, 3)}%">\n<PROG_DATA>\n`;
+  xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
+    xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@${padNumber(xmlObj.sequenceData[seq.id][color].duration, 4)};\n`;
+
+    if (!xmlObj.sequenceData[seq.id][color].fadeToNextColor) {
+      xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@0000;\n`;
+    }
+  });
+  xmlFile += `</PROG_DATA>\n</PROGRAM>\n`;
+});
+xmlFile += `</PROGRAMS_SOUTH>\n</SPEEVERS_LIGHT_DATA>`;
+    
+    return this.setState({fileGenerationModalOpen: true, xmlFile: xmlFile});
   }
 
   /* Settings Methods */
@@ -674,6 +677,35 @@ return `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@${padNumber
       </Modal>
     )
 
+    const FileCopyModal = () => (
+      <Modal open={this.state.fileGenerationModalOpen} onClose={() => this.setState({fileGenerationModalOpen: false})} size={'tiny'} >
+        <Modal.Header>
+          Your file is ready!
+        </Modal.Header>
+        <Modal.Content>
+          <p>Congratulations! What next, you ask? Simply copy your new creation, plug in your Jupiter ball, open the <code>speevers.xml</code> file on the Jupiter, highlight all the contents of the file and paste in your new creation instead! <span role="img" aria-label="smiley">🙌</span></p>
+
+          <CopyToClipboard text={this.state.xmlFile}
+            onCopy={() => this.setState({copiedFile: true})}>
+            <Button animated
+              className="copyBtn">
+              <Button.Content visible>Copy file to clipboard
+              </Button.Content>
+              <Button.Content hidden>
+                <Icon name='copy' />
+              </Button.Content>
+            </Button>
+          </CopyToClipboard>
+
+          {this.state.copiedFile ? 
+            <h4>File copied</h4> : ''}
+
+          <div><code>{this.state.xmlFile}</code></div>          
+
+        </Modal.Content>
+      </Modal>
+    )
+
     return (
       <div className="container">
         {this.state.settingsModalOpen ? 
@@ -704,7 +736,8 @@ return `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@${padNumber
               content={this.state.addingBallPartTo === 'northSequences' ? 'Are you sure? This will replace the entire South Pole' : 'Are you sure? This will replace the entire North Pole'}
             />
             <RenameModal />
-            <UserNameModal />        
+            <UserNameModal />
+            <FileCopyModal />     
             {this.state.currentSequence ?
               <div>
                 <Button onClick={this.exitSequenceEditor} animated>

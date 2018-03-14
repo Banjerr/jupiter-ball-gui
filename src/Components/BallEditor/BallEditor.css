@@ -38,3 +38,7 @@
   align-self: center;
   margin: -24px auto 48px;
 }
+
+code {
+  word-wrap: break-word;
+}

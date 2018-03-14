@@ -44,7 +44,7 @@ class SettingsModal extends Component {
             <Checkbox checked={!!this.props.parentState.program_looping} name="program_looping" onChange={() => this.props.handleSettingsCheck('program_looping')} label='Program Looping' />
           </Form.Field>
           <Form.Field key="start-first-settings-wrapper">
-            <Checkbox checked={!!this.props.parentState.start_first} name="start_first" onChange={() => this.props.handleSettingsCheck('start_first')} label='Program Looping' />
+            <Checkbox checked={!!this.props.parentState.start_first} name="start_first" onChange={() => this.props.handleSettingsCheck('start_first')} label='Start First' />
           </Form.Field>
         </Form>          
       </section>
