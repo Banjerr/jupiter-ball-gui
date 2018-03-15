@@ -48,37 +48,37 @@ const padNumber = (number, length) => {
   return str;
 }
 
-const createDownload = (data, filename, mime) => {
-  var blob = new Blob([data], {type: mime || 'application/octet-stream'});
+// const createDownload = (data, filename, mime) => {
+//   var blob = new Blob([data], {type: mime || 'application/octet-stream'});
 
-  if (typeof window.navigator.msSaveBlob !== 'undefined') {
-      // IE workaround for "HTML7007: One or more blob URLs were 
-      // revoked by closing the blob for which they were created. 
-      // These URLs will no longer resolve as the data backing 
-      // the URL has been freed."
-      window.navigator.msSaveBlob(blob, filename);
-  }
-  else {
-      var blobURL = window.URL.createObjectURL(blob);
-      var tempLink = document.createElement('a');
-      tempLink.style.display = 'none';
-      tempLink.href = blobURL;
-      tempLink.setAttribute('download', filename); 
+//   if (typeof window.navigator.msSaveBlob !== 'undefined') {
+//       // IE workaround for "HTML7007: One or more blob URLs were 
+//       // revoked by closing the blob for which they were created. 
+//       // These URLs will no longer resolve as the data backing 
+//       // the URL has been freed."
+//       window.navigator.msSaveBlob(blob, filename);
+//   }
+//   else {
+//       var blobURL = window.URL.createObjectURL(blob);
+//       var tempLink = document.createElement('a');
+//       tempLink.style.display = 'none';
+//       tempLink.href = blobURL;
+//       tempLink.setAttribute('download', filename); 
       
-      // Safari thinks _blank anchor are pop ups. We only want to set _blank
-      // target if the browser does not support the HTML5 download attribute.
-      // This allows you to download files in desktop safari if pop up blocking 
-      // is enabled.
-      if (typeof tempLink.download === 'undefined') {
-          tempLink.setAttribute('target', '_blank');
-      }
+//       // Safari thinks _blank anchor are pop ups. We only want to set _blank
+//       // target if the browser does not support the HTML5 download attribute.
+//       // This allows you to download files in desktop safari if pop up blocking 
+//       // is enabled.
+//       if (typeof tempLink.download === 'undefined') {
+//           tempLink.setAttribute('target', '_blank');
+//       }
       
-      document.body.appendChild(tempLink);
-      tempLink.click();
-      document.body.removeChild(tempLink);
-      window.URL.revokeObjectURL(blobURL);
-  }
-}
+//       document.body.appendChild(tempLink);
+//       tempLink.click();
+//       document.body.removeChild(tempLink);
+//       window.URL.revokeObjectURL(blobURL);
+//   }
+// }
 
 const reorder = (list, startIndex, endIndex) => {
   const result = Array.from(list);
@@ -182,7 +182,7 @@ xmlObj.northSequences.sequences.map((seq, index) => {
       elementLength++;
     }
 
-    elementLength++;
+    return elementLength++;
   });
   xmlFile += `<PROGRAM serialN="${padNumber((index + 1), 2)}" name="${seq.displayName.padEnd(20, '~')}" elements="${padNumber(elementLength, 4)}" speed="${padNumber(xmlObj.sequenceData[seq.id].fadeSpeed, 3)}%">\n<PROG_DATA>\n`;
     xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
@@ -191,8 +191,12 @@ xmlObj.northSequences.sequences.map((seq, index) => {
       if (!xmlObj.sequenceData[seq.id][color].fadeToNextColor) {
         xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@0000;\n`;
       }
+
+      return xmlFile;
     });
     xmlFile += `</PROG_DATA>\n</PROGRAM>\n`;
+
+    return xmlFile;
 });
 xmlFile += `</PROGRAMS_NORTH>\n<PROGRAMS_SOUTH>\n`;
 xmlObj.southSequences.sequences.map((seq, index) => {
@@ -202,7 +206,7 @@ xmlObj.southSequences.sequences.map((seq, index) => {
       elementLength++;
     }
 
-    elementLength++;
+    return elementLength++;
   });
   xmlFile += `<PROGRAM serialS="${padNumber((index + 1), 2)}" name="${seq.displayName.padEnd(20, '~')}" elements="${padNumber(elementLength, 4)}" speed="${padNumber(xmlObj.sequenceData[seq.id].fadeSpeed, 3)}%">\n<PROG_DATA>\n`;
   xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
@@ -211,8 +215,12 @@ xmlObj.southSequences.sequences.map((seq, index) => {
     if (!xmlObj.sequenceData[seq.id][color].fadeToNextColor) {
       xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@0000;\n`;
     }
+
+    return xmlFile;
   });
   xmlFile += `</PROG_DATA>\n</PROGRAM>\n`;
+
+  return xmlFile;
 });
 xmlFile += `</PROGRAMS_SOUTH>\n</SPEEVERS_LIGHT_DATA>`;
     
