@@ -174,7 +174,7 @@ class BallEditor extends Component {
       todays_time: todays_time
     };
 
-    let xmlFile = `<?xml version="1.0" encoding="UTF-8"?>\n<SPEEVERS_LIGHT_DATA>\n<STAMP user="${xmlObj.user.padEnd(20, '~')}" date="${xmlObj.todays_date}" time="${xmlObj.todays_time}"></STAMP>\n<SETTINGS switch_time="${xmlObj.switch_time}" program_looping="${xmlObj.program_looping ? 1 : 0}" programs_north="${padNumber(xmlObj.northSequences.sequences.length, 2)}" programs_south="${padNumber(xmlObj.southSequences.sequences.length, 2)}" start_fst="${xmlObj.start_first ? 1 : 0}" place_holder="################################################################################################################################################################################################################################################################################################################################################################################################################"></SETTINGS>\n<PROGRAMS_NORTH>\n`;
+    let xmlFile = `<?xml version="1.0" encoding="UTF-8"?>\r\n<SPEEVERS_LIGHT_DATA>\r\n<STAMP user="${xmlObj.user.padEnd(20, '~')}" date="${xmlObj.todays_date}" time="${xmlObj.todays_time}"></STAMP>\r\n<SETTINGS switch_time="${xmlObj.switch_time}" program_looping="${xmlObj.program_looping ? 1 : 0}" programs_north="${padNumber(xmlObj.northSequences.sequences.length, 2)}" programs_south="${padNumber(xmlObj.southSequences.sequences.length, 2)}" start_fst="${xmlObj.start_first ? 1 : 0}" place_holder="################################################################################################################################################################################################################################################################################################################################################################################################################"></SETTINGS>\r\n<PROGRAMS_NORTH>\r\n`;
 xmlObj.northSequences.sequences.map((seq, index) => {
   let elementLength = 0;
   xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
@@ -184,21 +184,21 @@ xmlObj.northSequences.sequences.map((seq, index) => {
 
     return elementLength++;
   });
-  xmlFile += `<PROGRAM serialN="${padNumber((index + 1), 2)}" name="${seq.displayName.padEnd(20, '~')}" elements="${padNumber(elementLength, 4)}" speed="${padNumber(xmlObj.sequenceData[seq.id].fadeSpeed, 3)}%">\n<PROG_DATA>\n`;
+  xmlFile += `<PROGRAM serialN="${padNumber((index + 1), 2)}" name="${seq.displayName.padEnd(20, '~')}" elements="${padNumber(elementLength, 4)}" speed="${padNumber(xmlObj.sequenceData[seq.id].fadeSpeed, 3)}%">\r\n<PROG_DATA>\r\n`;
     xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
-      xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@${padNumber(xmlObj.sequenceData[seq.id][color].duration, 4)};\n`;
+      xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@${padNumber(xmlObj.sequenceData[seq.id][color].duration, 4)};\r\n`;
 
       if (!xmlObj.sequenceData[seq.id][color].fadeToNextColor) {
-        xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@0000;\n`;
+        xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@0000;\r\n`;
       }
 
       return xmlFile;
     });
-    xmlFile += `</PROG_DATA>\n</PROGRAM>\n`;
+    xmlFile += `</PROG_DATA>\r\n</PROGRAM>\r\n`;
 
     return xmlFile;
 });
-xmlFile += `</PROGRAMS_NORTH>\n<PROGRAMS_SOUTH>\n`;
+xmlFile += `</PROGRAMS_NORTH>\r\n<PROGRAMS_SOUTH>\r\n`;
 xmlObj.southSequences.sequences.map((seq, index) => {
   let elementLength = 0;
   xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
@@ -208,21 +208,21 @@ xmlObj.southSequences.sequences.map((seq, index) => {
 
     return elementLength++;
   });
-  xmlFile += `<PROGRAM serialS="${padNumber((index + 1), 2)}" name="${seq.displayName.padEnd(20, '~')}" elements="${padNumber(elementLength, 4)}" speed="${padNumber(xmlObj.sequenceData[seq.id].fadeSpeed, 3)}%">\n<PROG_DATA>\n`;
+  xmlFile += `<PROGRAM serialS="${padNumber((index + 1), 2)}" name="${seq.displayName.padEnd(20, '~')}" elements="${padNumber(elementLength, 4)}" speed="${padNumber(xmlObj.sequenceData[seq.id].fadeSpeed, 3)}%">\r\n<PROG_DATA>\r\n`;
   xmlObj.sequenceData[seq.id].colorList.map((color, index) => {
-    xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@${padNumber(xmlObj.sequenceData[seq.id][color].duration, 4)};\n`;
+    xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@${padNumber(xmlObj.sequenceData[seq.id][color].duration, 4)};\r\n`;
 
     if (!xmlObj.sequenceData[seq.id][color].fadeToNextColor) {
-      xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@0000;\n`;
+      xmlFile += `${xmlObj.sequenceData[seq.id][color].color.replace('#', '')}@0000;\r\n`;
     }
 
     return xmlFile;
   });
-  xmlFile += `</PROG_DATA>\n</PROGRAM>\n`;
+  xmlFile += `</PROG_DATA>\r\n</PROGRAM>\r\n`;
 
   return xmlFile;
 });
-xmlFile += `</PROGRAMS_SOUTH>\n</SPEEVERS_LIGHT_DATA>`;
+xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
     
     return createDownload(xmlFile, 'speevers.xml', 'text/xml');
     // return this.setState({fileGenerationModalOpen: true, xmlFile: xmlFile});
