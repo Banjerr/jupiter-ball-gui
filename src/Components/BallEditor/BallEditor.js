@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { Button, Modal, Form, Input, Icon, Confirm } from 'semantic-ui-react';
+import { Button, Modal, Form, Input, Icon, Confirm, Accordion, Segment, Popup} from 'semantic-ui-react';
 import Controls from '../Controls/Controls.js';
 import SettingsModal from './SettingsModal.js';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
@@ -137,12 +137,13 @@ class BallEditor extends Component {
       editingThisPole: null,
       userNameModalOpen: true,        
       switch_time: 300,
-      settingsModalOpen: false,
       program_looping: true,
       start_first: false,
       fileGenerationModalOpen: false,
       xmlFile: null,
-      copiedFile: false
+      copiedFile: false,
+      userName: 'Super Creator1',
+      activeIndex: 0
     }
 
     this.onDragEnd = this.onDragEnd.bind(this);
@@ -154,8 +155,8 @@ class BallEditor extends Component {
     this.handleFadeToNextChange = this.handleFadeToNextChange.bind(this);
     this.handleFadeSpeedChange = this.handleFadeSpeedChange.bind(this);
     this.handleSettingsChange = this.handleSettingsChange.bind(this);
-    this.closeSettingsModal = this.closeSettingsModal.bind(this);
     this.handleSettingsCheck = this.handleSettingsCheck.bind(this);
+    this.handleSettingsAccordionClick = this.handleSettingsAccordionClick.bind(this);
   }
 
   createXMLFile = () => {
@@ -230,8 +231,17 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
 
   /* Settings Methods */
 
+  handleSettingsAccordionClick = (index) => {
+    let activeIndex = this.state.activeIndex;
+    let newIndex = activeIndex === index ? index - 1 : index;
+    this.setState({ activeIndex: newIndex });
+  }
+
   handleSettingsChange = (event) => {
     event.persist();
+
+    if (event.target.name ===! 'switch_time' && event.target.value.length === 1) return;
+
     const name = event.target.name,
       value = event.target.value;
 
@@ -245,10 +255,6 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
 
     this.setState(stateObject);
   }
-
-  closeSettingsModal = () => this.setState({settingsModalOpen: false});
-
-  openSettingsModal = () => this.setState({settingsModalOpen: true});
 
   handleSettingsCheck = (name) => {
     let stateObject = function() {
@@ -660,32 +666,6 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
       </Modal>
     )
 
-    const UserNameModal = () => (
-      <Modal open={this.state.userNameModalOpen} onClose={this.closeUserNameModal} size={'tiny'} >
-        <Modal.Header>
-          Hey! Who are you?
-        </Modal.Header>
-        <Modal.Content>
-          <p>What should we call you? (limit is 20 characters) <span role="img" aria-label="smiley">😬</span></p>
-          <Form key='name-form'>
-            <Form.Field>
-              <label>Your Name</label>
-              <Input maxLength='20' key='name-input' autoFocus type="text" id="name-input" onChange={(e) => this.setUserName(e)} value={this.state.userName} placeholder="Name Here" 
-                onFocus={function(e) {
-                  var val = e.target.value;
-                  e.target.value = '';
-                  e.target.value = val;
-                }} 
-              />
-            </Form.Field>
-          </Form>          
-        </Modal.Content>
-        <Modal.Actions>
-          <Button type='submit' positive icon='checkmark' labelPosition='right' content='Get Started' onClick={this.saveName} />
-        </Modal.Actions>
-      </Modal>
-    )
-
     const FileCopyModal = () => (
       <Modal open={this.state.fileGenerationModalOpen} onClose={() => this.setState({fileGenerationModalOpen: false})} size={'tiny'} >
         <Modal.Header>
@@ -717,164 +697,175 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
 
     return (
       <div className="container">
-        {this.state.settingsModalOpen ? 
-          <SettingsModal 
-            parentState={this.state} 
-            handleSettingsChange={this.handleSettingsChange}
-            closeSettingsModal={this.closeSettingsModal}  
-            handleSettingsCheck={this.handleSettingsCheck} 
-          /> :
-          <section>
-            <span className="appHeader">
-              <Button animated
-                className="settingsBtn"
-                onClick={this.openSettingsModal}>
-                <Button.Content visible>Settings
-                </Button.Content>
+        <section>
+          <span className="appHeader">
+            <h3 className="text-uppercase name">Hey {this.state.userName ? this.state.userName : ''}!</h3>
+          </span>            
+          <Confirm
+            open={this.state.confirmationOpen}
+            onCancel={this.handleCopyCancel}
+            header='Copy All Sequences'
+            onConfirm={this.handleCopyConfirm}
+            content={this.state.addingBallPartTo === 'northSequences' ? 'Are you sure? This will replace the entire South Pole' : 'Are you sure? This will replace the entire North Pole'}
+          />
+          <RenameModal />
+          <FileCopyModal />     
+          {this.state.currentSequence ?
+            <div>
+              <Button onClick={this.exitSequenceEditor} animated>
+                <Button.Content visible>Back</Button.Content>
                 <Button.Content hidden>
-                  <Icon name='cogs' />
+                  <Icon name='left arrow' />
                 </Button.Content>
-              </Button>
-              <h3 className="text-uppercase name">Hey {this.state.userName ? this.state.userName : ''}!</h3>
-            </span>            
-            <Confirm
-              open={this.state.confirmationOpen}
-              onCancel={this.handleCopyCancel}
-              header='Copy All Sequences'
-              onConfirm={this.handleCopyConfirm}
-              content={this.state.addingBallPartTo === 'northSequences' ? 'Are you sure? This will replace the entire South Pole' : 'Are you sure? This will replace the entire North Pole'}
-            />
-            <RenameModal />
-            <UserNameModal />
-            <FileCopyModal />     
-            {this.state.currentSequence ?
-              <div>
-                <Button onClick={this.exitSequenceEditor} animated>
-                  <Button.Content visible>Back</Button.Content>
-                  <Button.Content hidden>
-                    <Icon name='left arrow' />
-                  </Button.Content>
-                </Button><br /><br />
-                <Controls 
-                  handleFadeSpeedChange={this.handleFadeSpeedChange}
-                  addColor={this.addColor}
-                  onDragEnd={this.onDragEnd}
-                  removeColor={this.removeColor}
-                  handleFadeToNextChange={this.handleFadeToNextChange}
-                  handleColorChange={this.handleColorChange}
-                  handleTimeChange={this.handleTimeChange}
-                  sequence={this.state.sequenceData[this.state.currentSequence.id]}
-                  editThisColor={this.editThisColor}
-                  colorEditMode={this.state.colorEditMode}
-                  editingThisColor={this.state.editingThisColor}
-                  openRenameModal={this.openRenameModal}
-                />
-              </div> :
-              <div>            
-                <div className="sequenceContainer">            
-                  <NameModal />          
-                  {ballParts.map((ballPart, index) => (
-                    <div className="columns" key={index}>
-                      <header>
-                        {ballPart === 'northSequences' ?
-                          <h2>North Pole</h2> :
-                          <h2>South Pole</h2>
-                        }
-                        <span>
-                          <Button onClick={() => this.openNameModal(ballPart)} animated>
-                            <Button.Content visible>Add Sequence</Button.Content>
-                            <Button.Content hidden>
-                              <Icon name='plus' />
-                            </Button.Content>
-                          </Button>
-                          <Button onClick={() => this.showCopyConfirmation(ballPart)} animated>
-                            <Button.Content visible>Copy All To {ballPart === 'northSequences' ? 'South' : 'North'}</Button.Content>
-                            <Button.Content hidden>
-                              <Icon name='copy' />
-                            </Button.Content>
-                          </Button>                    
-                        </span><br />                  
-                      </header>
-                      <DragDropContext onDragEnd={this.onSequenceDragEnd}>
-                        <Droppable droppableId={ballPart} direction="vertical">
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              style={getListStyle(snapshot.isDraggingOver)}
-                            >
-                              {this.state[ballPart].sequences && this.state[ballPart].sequences.length ? 
-                                this.state[ballPart].sequences.map((sequence, index) => (
-                                  <Draggable key={index} draggableId={index} index={index}>
-                                    {(provided, snapshot) => (
-                                      <div className="full-width">
-                                        <div
-                                          ref={provided.innerRef}
-                                          {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
-                                          style={getItemStyle(
-                                            snapshot.isDragging,
-                                            provided.draggableProps.style,
-                                          )}
-                                        >
-                                          <header>
-                                            <Button onClick={() => this.openRenameModal(sequence, ballPart)}  animated>
-                                              <Button.Content visible><h3>{sequence.displayName}</h3></Button.Content>
+              </Button><br /><br />
+              <Controls 
+                handleFadeSpeedChange={this.handleFadeSpeedChange}
+                addColor={this.addColor}
+                onDragEnd={this.onDragEnd}
+                removeColor={this.removeColor}
+                handleFadeToNextChange={this.handleFadeToNextChange}
+                handleColorChange={this.handleColorChange}
+                handleTimeChange={this.handleTimeChange}
+                sequence={this.state.sequenceData[this.state.currentSequence.id]}
+                editThisColor={this.editThisColor}
+                colorEditMode={this.state.colorEditMode}
+                editingThisColor={this.state.editingThisColor}
+                openRenameModal={this.openRenameModal}
+              />
+            </div> :
+            <div>     
+              <Segment>
+                <Accordion>
+                  <Accordion.Title active={this.state.activeIndex === 1} index={1} onClick={() => this.handleSettingsAccordionClick(1)}>
+                    <Icon name='dropdown' />
+                    Settings
+                  </Accordion.Title>
+                  <Accordion.Content active={this.state.activeIndex === 1}>
+                    <SettingsModal 
+                      parentState={this.state} 
+                      handleSettingsChange={this.handleSettingsChange}
+                      closeSettingsModal={this.closeSettingsModal}  
+                      handleSettingsCheck={this.handleSettingsCheck} 
+                    />
+                  </Accordion.Content>                    
+                </Accordion> 
+              </Segment>                     
+              <div className="sequenceContainer">            
+                <NameModal />                         
+                {ballParts.map((ballPart, index) => (
+                  <div className="columns" key={index}>
+                    <header>
+                      {ballPart === 'northSequences' ?
+                        <h2>North Pole</h2> :
+                        <h2>South Pole</h2>
+                      }
+                      <span>
+                        <Button onClick={() => this.openNameModal(ballPart)} animated>
+                          <Button.Content visible>Add Sequence</Button.Content>
+                          <Button.Content hidden>
+                            <Icon name='plus' />
+                          </Button.Content>
+                        </Button>
+                        <Button onClick={() => this.showCopyConfirmation(ballPart)} animated>
+                          <Button.Content visible>Copy All To {ballPart === 'northSequences' ? 'South' : 'North'}</Button.Content>
+                          <Button.Content hidden>
+                            <Icon name='copy' />
+                          </Button.Content>
+                        </Button>                    
+                      </span><br />                  
+                    </header>
+                    <DragDropContext onDragEnd={this.onSequenceDragEnd}>
+                      <Droppable droppableId={ballPart} direction="vertical">
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            style={getListStyle(snapshot.isDraggingOver)}
+                          >
+                            {this.state[ballPart].sequences && this.state[ballPart].sequences.length ? 
+                              this.state[ballPart].sequences.map((sequence, index) => (
+                                <Draggable key={index} draggableId={index} index={index}>
+                                  {(provided, snapshot) => (
+                                    <div className="full-width">
+                                      <div
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        style={getItemStyle(
+                                          snapshot.isDragging,
+                                          provided.draggableProps.style,
+                                        )}
+                                      >
+                                        <header className='sequenceHeader'>
+                                          <Button onClick={() => this.openRenameModal(sequence, ballPart)}  animated>
+                                            <Button.Content visible><h3>{sequence.displayName}</h3></Button.Content>
+                                            <Button.Content hidden>
+                                              <Icon name='pencil' />
+                                            </Button.Content>
+                                          </Button>
+                                          <Icon className='closeBtn' name='close' onClick={() => this.removeSequence(sequence, index, ballPart)} /><br />                           
+                                          <span>
+                                            <Button onClick={() => this.editSequence(sequence)}  animated>
+                                              <Button.Content visible>Edit</Button.Content>
                                               <Button.Content hidden>
                                                 <Icon name='pencil' />
                                               </Button.Content>
-                                            </Button><br />                           
-                                            <span>
-                                              <Button onClick={() => this.editSequence(sequence)}  animated>
-                                                <Button.Content visible>Edit</Button.Content>
-                                                <Button.Content hidden>
-                                                  <Icon name='pencil' />
-                                                </Button.Content>
-                                              </Button>
-                                              <Button className='copySequenceBtn' onClick={() => this.copySequence(sequence, index, ballPart)}  animated>
-                                                <Button.Content visible>Copy</Button.Content>
-                                                <Button.Content hidden>
-                                                  <Icon name='copy' />
-                                                </Button.Content>
-                                              </Button>
-                                              <Button onClick={() => this.removeSequence(sequence, index, ballPart)}  animated>
-                                                <Button.Content visible>Delete</Button.Content>
-                                                <Button.Content hidden>
-                                                  <Icon name='trash' />
-                                                </Button.Content>
-                                              </Button>                                          
-                                            </span>      
-                                          </header>                                      
-                                        </div>
-                                        {provided.placeholder}
+                                            </Button>
+                                            <Button className='copySequenceBtn' onClick={() => this.copySequence(sequence, index, ballPart)}  animated>
+                                              <Button.Content visible>Copy</Button.Content>
+                                              <Button.Content hidden>
+                                                <Icon name='copy' />
+                                              </Button.Content>
+                                            </Button>                                        
+                                          </span>      
+                                        </header>                                      
                                       </div>
-                                    )}
-                                  </Draggable>
-                                )) :
-                                'Add A Sequence!'
-                              }
-                              {provided.placeholder}
-                            </div>
-                          )}
-                        </Droppable>
-                      </DragDropContext>
-                    </div>
-                  ))}                                    
-                </div>
+                                      {provided.placeholder}
+                                    </div>
+                                  )}
+                                </Draggable>
+                              )) :
+                              'Add A Sequence!'
+                            }
+                            {provided.placeholder}
+                          </div>
+                        )}
+                      </Droppable>
+                    </DragDropContext>
+                  </div>
+                ))}                                    
+              </div>
 
-                { this.state.northSequences.sequences.length && this.state.southSequences.sequences.length ?
-                  <section><br /><br /><Button animated
-                    onClick={this.createXMLFile}>
-                    <Button.Content visible>Generate File And Play!
-                    </Button.Content>
-                    <Button.Content hidden>
-                      <Icon name='download' />
-                    </Button.Content>
-                  </Button></section> : ''
-                }
-              </div>          
-            }
-          </section>          
-        }        
+              { this.state.northSequences.sequences.length && this.state.southSequences.sequences.length ?
+                <section><br /><br /><Button animated
+                  onClick={this.createXMLFile}>
+                  <Button.Content visible>Generate File And Play!
+                  </Button.Content>
+                  <Button.Content hidden>
+                    <Icon name='download' />
+                  </Button.Content>
+                </Button></section> : 
+                <section><br /><br />
+                  <Popup
+                    trigger={<Button animated>
+                      <Button.Content visible>Generate File And Play!
+                      </Button.Content>
+                      <Button.Content hidden>
+                        <Icon name='download' />
+                      </Button.Content>
+                    </Button>}
+                    content='You need to have at least one sequence on each side to generate the file.'
+                    style={{
+                      borderRadius: 0,
+                      opacity: 0.7,
+                      padding: '2em',
+                    }}
+                    inverted
+                  />
+                </section>
+              }
+            </div>          
+          }
+        </section>               
       </div>      
     )
   }

@@ -1,3 +1,9 @@
+.error input {
+  background-color: #fff6f6 !important;
+  border-color: #e0b4b4 !important;
+  color: #9f3a38 !important;
+}
+
 .sequenceContainer {
   display: flex;
   align-self: flex-start;
@@ -7,6 +13,18 @@
 .columns {
   max-width: 563.5px;
   width: 100%;  
+}
+
+.sequenceHeader {
+  position: relative; 
+}
+
+.sequenceHeader .closeBtn {
+  position: absolute;
+  top: 0%;
+  right: 0%;
+  color: #fff;
+  cursor: pointer;
 }
 
 .full-width {
