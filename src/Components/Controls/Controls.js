@@ -3,7 +3,7 @@ import Ball from '../Ball/Ball.js';
 import './Controls.css';
 import FontAwesome from 'react-fontawesome';
 import { SketchPicker } from 'react-color';
-import { Button, Icon, Checkbox } from 'semantic-ui-react';
+import { Button, Icon, Checkbox, Accordion, Form, Input } from 'semantic-ui-react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -39,22 +39,34 @@ class Controls extends Component {
     return (
       <div 
         className="Controls">
+        <Accordion>
+          <Accordion.Title active={this.props.activeIndex === 2} index={2} onClick={() => this.props.handleSettingsAccordionClick(2)}>
+            <Icon name='dropdown' />
+            Settings
+          </Accordion.Title>
+          <Accordion.Content active={this.props.activeIndex === 2}>
+            <Form.Field>
+              <label>Sequence Name</label>
+              <Input maxLength='20' key='sequence-name-input' autoFocus type="text" id="name-input" onChange={(e) => this.props.updateName(e)} value={this.props.sequence.displayName} placeholder="Sequence Name Here" 
+                onFocus={function(e) {
+                  var val = e.target.value;
+                  e.target.value = '';
+                  e.target.value = val;
+                }} 
+              />
+            </Form.Field>
+            <label>Overall fade speed: {this.props.sequence.fadeSpeed}% (default is 100%)</label>
+              <SliderTooltip 
+                max={200}
+                min={1}
+                value={this.props.sequence.fadeSpeed}
+                onChange={this.props.handleFadeSpeedChange}
+            /><br />
+          </Accordion.Content>                    
+        </Accordion> 
         <section>          
-          <Button onClick={() => this.props.openRenameModal(this.props.sequence)}  animated>
-            <Button.Content visible><h3>{this.props.sequence.displayName}</h3></Button.Content>
-            <Button.Content hidden>
-              <Icon name='pencil' />
-            </Button.Content>
-          </Button><br /><br />
           <p>Number of colors: {this.props.sequence.colorNumber}</p>
-          <p>Length of sequence (in seconds): {round(this.props.sequence.duration)}</p>
-          <label>Overall fade speed: {this.props.sequence.fadeSpeed}% (default is 100%)</label>
-          <SliderTooltip 
-            max={200}
-            min={1}
-            value={this.props.sequence.fadeSpeed}
-            onChange={this.props.handleFadeSpeedChange}
-          /><br />
+          <p>Length of sequence (in seconds): {round(this.props.sequence.duration)}</p>          
 
           <Button onClick={this.props.addColor} animated>
             <Button.Content visible>Add Color</Button.Content>

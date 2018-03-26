@@ -231,7 +231,7 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
 
   handleSettingsAccordionClick = (index) => {
     let activeIndex = this.state.activeIndex;
-    let newIndex = activeIndex === index ? index - 1 : index;
+    let newIndex = activeIndex === index ? index - 2 : index;
     this.setState({ activeIndex: newIndex });
   }
 
@@ -303,6 +303,7 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
       returnObj.currentSequence = returnObj.sequenceData[objectSafeSequenceName];
       returnObj.editingThisColor = returnObj.sequenceData[objectSafeSequenceName].color1;
       returnObj.editingThisColor.index = 0;
+      returnObj.editingThisSequence = returnObj.sequenceData[objectSafeSequenceName];
       returnObj.colorEditMode = true;
       return returnObj;
     }
@@ -385,32 +386,30 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
     this.setState( stateObject ); 
   }
 
-  updateName = (event) => this.setState({ currentNameValue: event.target.value});
+  updateName = (event) => {
+    this.setState({ currentNameValue: event.target.value});
+    return this.renameSequence(event.target.value);    
+  }
 
-  openRenameModal = (sequence, ballPart) => this.setState({ editingThisSequence: sequence, renameModalOpen: true, editingThisPole: ballPart || null });
-
-  closeRenameModal = () => this.setState({ editingThisSequence: '', currentNameValue: '', renameModalOpen: false, editingThisPole: null });
-
-  renameSequence = () => {
+  renameSequence = (newName) => {
     let stateObject = function() {
       let returnObj = this.state;
 
       returnObj.northSequences.sequences.map((seq) => {
         if (seq.displayName === this.state.editingThisSequence.displayName) {
-          return seq.displayName = this.state.currentNameValue;
+          return seq.displayName = newName;
         } else return null;
       });
 
       returnObj.southSequences.sequences.map((seq) => {
         if (seq.displayName === this.state.editingThisSequence.displayName) {
-          return seq.displayName = this.state.currentNameValue;
+          return seq.displayName = newName;
         } else return null;
       });  
 
-      returnObj.sequenceData[this.state.editingThisSequence.id].displayName = this.state.currentNameValue;
+      returnObj.sequenceData[this.state.editingThisSequence.id].displayName = newName;
       returnObj.currentNameValue = '';
-      returnObj.editingThisSequence = '';
-      returnObj.renameModalOpen = false;
+      // returnObj.editingThisSequence = '';
       returnObj.editingThisPole = null;
 
       return returnObj;
@@ -608,32 +607,6 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
   render() {
     const ballParts = ['northSequences', 'southSequences'];
 
-    const RenameModal = () => (
-      <Modal open={this.state.renameModalOpen} onClose={this.closeRenameModal} size={'tiny'} >
-        <Modal.Header>
-          Rename {this.state.editingThisSequence ? this.state.editingThisSequence.displayName : 'sequences'}
-        </Modal.Header>
-        <Modal.Content>
-          <p>Choose a new name for this sequence. <span role="img" aria-label="smiley">🙌</span> (limit is 20 characters)</p>
-          <Form key='sequence-name-form'>
-            <Form.Field>
-              <label>Sequence Name</label>
-              <Input maxLength='20' key='sequence-name-input' autoFocus type="text" id="name-input" onChange={(e) => this.updateName(e)} value={this.state.currentNameValue} placeholder="Sequence Name Here" 
-                onFocus={function(e) {
-                  var val = e.target.value;
-                  e.target.value = '';
-                  e.target.value = val;
-                }} 
-              />
-            </Form.Field>
-          </Form>          
-        </Modal.Content>
-        <Modal.Actions>
-          <Button type='submit' positive icon='checkmark' labelPosition='right' content='Rename Sequence' onClick={this.renameSequence} />
-        </Modal.Actions>
-      </Modal>
-    )
-
     const FileCopyModal = () => (
       <Modal open={this.state.fileGenerationModalOpen} onClose={() => this.setState({fileGenerationModalOpen: false})} size={'tiny'} >
         <Modal.Header>
@@ -676,12 +649,11 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
             onConfirm={this.handleCopyConfirm}
             content={this.state.addingBallPartTo === 'northSequences' ? 'Are you sure? This will replace the entire South Pole' : 'Are you sure? This will replace the entire North Pole'}
           />
-          <RenameModal />
           <FileCopyModal />     
           {this.state.currentSequence ?
             <div>
               <Button onClick={this.exitSequenceEditor} animated>
-                <Button.Content visible>Back</Button.Content>
+                <Button.Content visible>Save And Back</Button.Content>
                 <Button.Content hidden>
                   <Icon name='left arrow' />
                 </Button.Content>
@@ -691,14 +663,16 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
                 addColor={this.addColor}
                 onDragEnd={this.onDragEnd}
                 removeColor={this.removeColor}
-                handleFadeToNextChange={this.handleFadeToNextChange}
-                handleColorChange={this.handleColorChange}
                 handleTimeChange={this.handleTimeChange}
                 sequence={this.state.sequenceData[this.state.currentSequence.id]}
                 editThisColor={this.editThisColor}
                 colorEditMode={this.state.colorEditMode}
                 editingThisColor={this.state.editingThisColor}
-                openRenameModal={this.openRenameModal}
+                activeIndex={this.state.activeIndex}
+                handleSettingsAccordionClick={this.handleSettingsAccordionClick}
+                updateName={this.updateName}
+                handleFadeToNextChange={this.handleFadeToNextChange}
+                handleColorChange={this.handleColorChange}
               />
             </div> :
             <div>     
@@ -763,12 +737,7 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
                                         )}
                                       >
                                         <header className='sequenceHeader'>
-                                          <Button onClick={() => this.openRenameModal(sequence, ballPart)}  animated>
-                                            <Button.Content visible><h3>{sequence.displayName}</h3></Button.Content>
-                                            <Button.Content hidden>
-                                              <Icon name='pencil' />
-                                            </Button.Content>
-                                          </Button>
+                                          <h3>{sequence.displayName}</h3>
                                           <Icon className='closeBtn' name='close' onClick={() => this.removeSequence(sequence, index, ballPart)} /><br />                           
                                           <span>
                                             <Button onClick={() => this.editSequence(sequence)}  animated>
