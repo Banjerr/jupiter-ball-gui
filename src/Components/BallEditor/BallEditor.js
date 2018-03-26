@@ -127,7 +127,6 @@ class BallEditor extends Component {
       },
       currentSequence: null,
       currentNameValue: '',
-      nameModalOpen: false,
       sequenceData: {},
       colorEditMode: false,
       editingThisColor: null,
@@ -149,7 +148,6 @@ class BallEditor extends Component {
     this.onDragEnd = this.onDragEnd.bind(this);
     this.onSequenceDragEnd = this.onSequenceDragEnd.bind(this);
     this.updateName = this.updateName.bind(this);
-    this.openNameModal = this.openNameModal.bind(this);
     this.handleColorChange = this.handleColorChange.bind(this);
     this.handleTimeChange = this.handleTimeChange.bind(this);
     this.handleFadeToNextChange = this.handleFadeToNextChange.bind(this);
@@ -270,24 +268,25 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
 
   /* Sequence Methods */
 
-  addSequence = () => {
+  addSequence = (ballPart) => {
     let stateObject = function() {
       let returnObj = this.state;
+      let currentNameValue = 'Color Joy' + (this.state[ballPart].sequences.length + 1);
 
-      let objectSafeSequenceName = this.state.currentNameValue.replace(/\s+/g, '-').toLowerCase() + '-' + + Date.now();
+      let objectSafeSequenceName = currentNameValue.replace(/\s+/g, '-').toLowerCase() + '-' + + Date.now();
       
-      if (this.state.addingSequenceTo === 'northSequences') {
-        returnObj.northSequences.sequences.push({id: objectSafeSequenceName, displayName: this.state.currentNameValue});
+      if (ballPart === 'northSequences') {
+        returnObj.northSequences.sequences.push({id: objectSafeSequenceName, displayName: currentNameValue});
       }
 
-      if (this.state.addingSequenceTo === 'southSequences') {
-        returnObj.southSequences.sequences.push({id: objectSafeSequenceName, displayName: this.state.currentNameValue});
+      if (ballPart === 'southSequences') {
+        returnObj.southSequences.sequences.push({id: objectSafeSequenceName, displayName: currentNameValue});
       }
 
       returnObj.sequenceData[objectSafeSequenceName] = {
-        displayName: this.state.currentNameValue,
-        northPole: this.state.addingSequenceTo === 'northSequences' ? true : false,
-        southPole: this.state.addingSequenceTo === 'southSequences' ? true :false,
+        displayName: currentNameValue,
+        northPole: ballPart === 'northSequences' ? true : false,
+        southPole: ballPart === 'southSequences' ? true :false,
         id: objectSafeSequenceName,
         duration: 0,
         fadeSpeed: 100,
@@ -301,7 +300,6 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
         }
       };
 
-      returnObj.nameModalOpen = false;
       returnObj.currentSequence = returnObj.sequenceData[objectSafeSequenceName];
       returnObj.editingThisColor = returnObj.sequenceData[objectSafeSequenceName].color1;
       returnObj.editingThisColor.index = 0;
@@ -420,10 +418,6 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
   
     return this.setState( stateObject ); 
   }
-
-  openNameModal = (ballPart) => this.setState({nameModalOpen: true, addingSequenceTo: ballPart});
-
-  closeNameModal = () => this.setState({nameModalOpen: false, addingSequenceTo: null});
 
   editSequence = (sequence) => this.setState({currentSequence: sequence});
 
@@ -614,32 +608,6 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
   render() {
     const ballParts = ['northSequences', 'southSequences'];
 
-    const NameModal = () => (
-      <Modal open={this.state.nameModalOpen} onClose={this.closeNameModal} size={'tiny'} >
-        <Modal.Header>
-          Sequence Name
-        </Modal.Header>
-        <Modal.Content>
-          <p>What would you like to call this sequence? Don't worry, you can change this at anytime. <span role="img" aria-label="smiley">😀</span> (limit is 20 characters)</p>
-          <Form key='sequence-name-form'>
-            <Form.Field>
-              <label>Sequence Name</label>
-              <Input maxLength='20' key='sequence-name-input' autoFocus type="text" id="name-input" onChange={(e) => this.updateName(e)} value={this.state.currentNameValue} placeholder="Sequence Name Here" 
-                onFocus={function(e) {
-                  var val = e.target.value;
-                  e.target.value = '';
-                  e.target.value = val;
-                }} 
-              />
-            </Form.Field>
-          </Form>          
-        </Modal.Content>
-        <Modal.Actions>
-          <Button type='submit' positive icon='checkmark' labelPosition='right' content='Create Sequence' onClick={this.addSequence} />
-        </Modal.Actions>
-      </Modal>
-    ); 
-
     const RenameModal = () => (
       <Modal open={this.state.renameModalOpen} onClose={this.closeRenameModal} size={'tiny'} >
         <Modal.Header>
@@ -751,7 +719,6 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
                 </Accordion> 
               </Segment>                     
               <div className="sequenceContainer">            
-                <NameModal />                         
                 {ballParts.map((ballPart, index) => (
                   <div className="columns" key={index}>
                     <header>
@@ -760,7 +727,7 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
                         <h2>South Pole</h2>
                       }
                       <span>
-                        <Button onClick={() => this.openNameModal(ballPart)} animated>
+                        <Button onClick={() => this.addSequence(ballPart)} animated>
                           <Button.Content visible>Add Sequence</Button.Content>
                           <Button.Content hidden>
                             <Icon name='plus' />
