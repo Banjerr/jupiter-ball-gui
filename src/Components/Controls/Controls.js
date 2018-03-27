@@ -3,7 +3,7 @@ import Ball from '../Ball/Ball.js';
 import './Controls.css';
 import FontAwesome from 'react-fontawesome';
 import { SketchPicker } from 'react-color';
-import { Button, Icon, Checkbox, Accordion, Form, Input } from 'semantic-ui-react';
+import { Button, Icon, Checkbox, Accordion, Form, Input, Segment, Popup } from 'semantic-ui-react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
@@ -38,35 +38,10 @@ class Controls extends Component {
   render() {  
     return (
       <div 
-        className="Controls">
-        <Accordion>
-          <Accordion.Title active={this.props.activeIndex === 2} index={2} onClick={() => this.props.handleSettingsAccordionClick(2)}>
-            <Icon name='dropdown' />
-            Settings
-          </Accordion.Title>
-          <Accordion.Content active={this.props.activeIndex === 2}>
-            <Form.Field>
-              <label>Sequence Name</label>
-              <Input maxLength='20' key='sequence-name-input' autoFocus type="text" id="name-input" onChange={(e) => this.props.updateName(e)} value={this.props.sequence.displayName} placeholder="Sequence Name Here" 
-                onFocus={function(e) {
-                  var val = e.target.value;
-                  e.target.value = '';
-                  e.target.value = val;
-                }} 
-              />
-            </Form.Field>
-            <label>Overall fade speed: {this.props.sequence.fadeSpeed}% (default is 100%)</label>
-              <SliderTooltip 
-                max={200}
-                min={1}
-                value={this.props.sequence.fadeSpeed}
-                onChange={this.props.handleFadeSpeedChange}
-            /><br />
-          </Accordion.Content>                    
-        </Accordion> 
+        className="Controls">        
         <section>          
-          <p>Number of colors: {this.props.sequence.colorNumber}</p>
-          <p>Length of sequence (in seconds): {round(this.props.sequence.duration)}</p>          
+          <p>Length of sequence (in seconds): {round(this.props.sequence.duration)}</p>  
+          <p>Number of colors: {this.props.sequence.colorNumber} - Click a color square to edit it!</p>                  
 
           <Button onClick={this.props.addColor} animated>
             <Button.Content visible>Add Color</Button.Content>
@@ -95,8 +70,9 @@ class Controls extends Component {
                               provided.draggableProps.style,
                               this.props.sequence[item].color
                             )}
+                            onClick={() => this.props.editThisColor(item, index)}
                           >                            
-                            <FontAwesome name="pencil" onClick={() => this.props.editThisColor(item, index)} />
+                            <FontAwesome name="pencil" />
                           </div>
                           {provided.placeholder}
                         </div>
@@ -137,7 +113,7 @@ class Controls extends Component {
                 onChangeComplete={ this.props.handleColorChange(this.props.editingThisColor.id) }
               />
 
-              <h3>Time in milliseconds: {this.props.sequence[this.props.editingThisColor.id].duration}</h3>
+              <h3>Time in milliseconds: {this.props.sequence[this.props.editingThisColor.id].duration}ms</h3>
               <SliderTooltip 
                 max={9999}
                 min={1}
@@ -160,7 +136,44 @@ class Controls extends Component {
               southFade={this.props.sequence.southPole ? this.props.sequence.fadeSpeed : null}
             />
           </div>
-        </div>        
+        </div>    
+        
+        <Segment>
+          <Accordion>
+            <Accordion.Title active={this.props.activeIndex === 2} index={2} onClick={() => this.props.handleSettingsAccordionClick(2)}>
+              <Icon name='dropdown' />
+              Settings
+            </Accordion.Title>
+            <Accordion.Content active={this.props.activeIndex === 2}>
+              <Form.Field>
+                <label>Sequence Name</label><br /><br />
+                <Input maxLength='20' key='sequence-name-input' autoFocus type="text" id="name-input" onChange={(e) => this.props.updateName(e)} value={this.props.sequence.displayName} placeholder="Sequence Name Here" 
+                  onFocus={function(e) {
+                    var val = e.target.value;
+                    e.target.value = '';
+                    e.target.value = val;
+                  }} 
+                />
+              </Form.Field><br /><br />
+                <Popup
+                  trigger={<label>Sequence play speed: {this.props.sequence.fadeSpeed}% (default is 100%)</label>}
+                  content='Use this a quick way to affect the entire sequence timing. If 100%, the sequence will play as is, 50% - playing in double speed, 200% - playing in half speed, etc.'
+                  style={{
+                    borderRadius: 0,
+                    opacity: 0.7,
+                    padding: '2em',
+                  }}
+                  inverted
+                /><br /><br />
+                <SliderTooltip 
+                  max={200}
+                  min={1}
+                  value={this.props.sequence.fadeSpeed}
+                  onChange={this.props.handleFadeSpeedChange}
+              /><br />
+            </Accordion.Content>                    
+          </Accordion>  
+        </Segment>           
       </div>
     );
   }

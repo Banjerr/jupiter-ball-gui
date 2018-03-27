@@ -288,15 +288,15 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
         northPole: ballPart === 'northSequences' ? true : false,
         southPole: ballPart === 'southSequences' ? true :false,
         id: objectSafeSequenceName,
-        duration: 0,
+        duration: .5,
         fadeSpeed: 100,
         colorNumber: 1,
         colorList: ['color1'],
         color1: {
-          color: '#ffffff',
-          duration: 1,
+          color: '#D0021B',
+          duration: 500,
           id: 'color1',
-          fadeToNextColor: true
+          fadeToNextColor: false
         }
       };
 
@@ -452,14 +452,16 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
       returnObj.sequenceData[this.state.currentSequence.id]['colorNumber'] = currentColorNumber + 1;
       returnObj.sequenceData[this.state.currentSequence.id]['colorList'].push(newPropName);
       returnObj.sequenceData[this.state.currentSequence.id][newPropName] = {
-        color: '#ffffff',
-        duration: 1,
+        color: '#D0021B',
+        duration: 500,
         id: newPropName,
-        fadeToNextColor: true,
+        fadeToNextColor: false,
         index: currentColorNumber
       };
       returnObj.editingThisColor = returnObj.sequenceData[this.state.currentSequence.id][newPropName];
+      returnObj.sequenceData[this.state.currentSequence.id]['duration'] = returnObj.sequenceData[this.state.currentSequence.id]['duration'] + .5;
       returnObj.colorEditMode = true;
+
       return returnObj;
     }
   
@@ -640,7 +642,8 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
       <div className="container">
         <section>
           <span className="appHeader">
-            <h3 className="text-uppercase name">Hey {this.state.userName ? this.state.userName : ''}!</h3>
+            <h2 className="name">Jupiter – Smart LED ball – color sequences editor</h2>
+            <h3 className="name">Hey {this.state.userName ? this.state.userName : ''}!</h3>
           </span>            
           <Confirm
             open={this.state.confirmationOpen}
@@ -675,23 +678,7 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
                 handleColorChange={this.handleColorChange}
               />
             </div> :
-            <div>     
-              <Segment>
-                <Accordion>
-                  <Accordion.Title active={this.state.activeIndex === 1} index={1} onClick={() => this.handleSettingsAccordionClick(1)}>
-                    <Icon name='dropdown' />
-                    Settings
-                  </Accordion.Title>
-                  <Accordion.Content active={this.state.activeIndex === 1}>
-                    <SettingsModal 
-                      parentState={this.state} 
-                      handleSettingsChange={this.handleSettingsChange}
-                      closeSettingsModal={this.closeSettingsModal}  
-                      handleSettingsCheck={this.handleSettingsCheck} 
-                    />
-                  </Accordion.Content>                    
-                </Accordion> 
-              </Segment>                     
+            <div>                                       
               <div className="sequenceContainer">            
                 {ballParts.map((ballPart, index) => (
                   <div className="columns" key={index}>
@@ -799,7 +786,23 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
                   />
                 </section>
               }
-            </div>          
+              <Segment>
+                <Accordion>
+                  <Accordion.Title active={this.state.activeIndex === 1} index={1} onClick={() => this.handleSettingsAccordionClick(1)}>
+                    <Icon name='dropdown' />
+                    Settings
+                  </Accordion.Title>
+                  <Accordion.Content active={this.state.activeIndex === 1}>
+                    <SettingsModal 
+                      parentState={this.state} 
+                      handleSettingsChange={this.handleSettingsChange}
+                      closeSettingsModal={this.closeSettingsModal}  
+                      handleSettingsCheck={this.handleSettingsCheck} 
+                    />
+                  </Accordion.Content>                    
+                </Accordion> 
+              </Segment> 
+            </div>             
           }
         </section>               
       </div>      
