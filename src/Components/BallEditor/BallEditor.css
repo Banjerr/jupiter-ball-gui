@@ -60,3 +60,32 @@
 code {
   word-wrap: break-word;
 }
+
+@media all and (max-width: 610px) {
+  .sequenceContainer {
+    flex-direction: column;
+  }
+
+  .sequenceContainer .columns {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .sequenceContainer .columns:first-of-type {
+    margin: 0 0 4%;
+  }
+
+  .Controls .row {
+    -ms-flex-direction: column;
+    flex-direction: column;
+  }
+
+  .Controls .row .half-width {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .Controls .row .half-width:first-of-type {
+    margin: 0 0 6%;
+  }
+}

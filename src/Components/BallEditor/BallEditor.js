@@ -5,6 +5,8 @@ import Controls from '../Controls/Controls.js';
 import SettingsModal from './SettingsModal.js';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import './BallEditor.css';
+import Logo from './speevers_logo.png';
+
 // TODO split up into separate components, improve, basically just needed to get it done quickly 🙌
 const formatToday = () => {
   var today = new Date();
@@ -418,7 +420,7 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
     return this.setState( stateObject ); 
   }
 
-  editSequence = (sequence) => this.setState({currentSequence: sequence});
+  editSequence = (sequence) => this.setState({currentSequence: sequence, editingThisSequence: sequence});
 
   /* Sequence Editor Methods */
 
@@ -642,6 +644,7 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
       <div className="container">
         <section>
           <span className="appHeader">
+            <img src={Logo} alt="logo" />
             <h2 className="name">Jupiter – Smart LED ball – color sequences editor</h2>
             <h3 className="name">Hey {this.state.userName ? this.state.userName : ''}!</h3>
           </span>            
