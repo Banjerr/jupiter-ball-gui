@@ -19,19 +19,20 @@ const getItemStyle = (isDragging, draggableStyle, itemColor) => ({
   userSelect: 'none',
   padding: grid * 2,
   margin: `0 ${grid}px 0 0`,
-
+  borderRadius: '50%',
   // change background colour if dragging
-  background: isDragging ? 'lightgreen' : itemColor,
+  background: isDragging ? '#8DC449' : itemColor,
 
   // styles we need to apply on draggables
   ...draggableStyle,
 });
 
 const getListStyle = isDraggingOver => ({
-  background: isDraggingOver ? 'lightblue' : 'lightgrey',
+  background: isDraggingOver ? '#2277BA' : 'rgb(27, 28, 29)',
   display: 'flex',
   padding: grid,
   overflow: 'auto',
+  border: '1px solid #fff'
 });
 
 class Controls extends Component {
@@ -40,8 +41,7 @@ class Controls extends Component {
       <div 
         className="Controls">        
         <section>          
-          <p>Length of sequence (in seconds): {round(this.props.sequence.duration)}</p>  
-          <p>Number of colors: {this.props.sequence.colorNumber} - Click a color square to edit it!</p>                  
+          <p>Total Time: {round(this.props.sequence.duration)} seconds - {this.props.sequence.colorNumber} color{this.props.sequence.colorNumber > 1 ? 's' : ''}</p>         
 
           <Button onClick={this.props.addColor} animated>
             <Button.Content visible>Add Color</Button.Content>
@@ -138,8 +138,8 @@ class Controls extends Component {
           </div>
         </div>    
         
-        <Segment>
-          <Accordion>
+        <Segment inverted>
+          <Accordion inverted>
             <Accordion.Title active={this.props.activeIndex === 2} index={2} onClick={() => this.props.handleSettingsAccordionClick(2)}>
               <Icon name='dropdown' />
               Settings
@@ -160,7 +160,7 @@ class Controls extends Component {
                   content='Use this a quick way to affect the entire sequence timing. If 100%, the sequence will play as is, 50% - playing in double speed, 200% - playing in half speed, etc.'
                   style={{
                     borderRadius: 0,
-                    opacity: 0.7,
+                    opacity: 0.8,
                     padding: '2em',
                   }}
                   inverted

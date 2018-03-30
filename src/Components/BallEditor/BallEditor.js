@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
-import { Button, Modal, Form, Input, Icon, Confirm, Accordion, Segment, Popup} from 'semantic-ui-react';
+import { Button, Modal, Icon, Confirm, Accordion, Segment, Popup} from 'semantic-ui-react';
 import Controls from '../Controls/Controls.js';
 import SettingsModal from './SettingsModal.js';
-import {CopyToClipboard} from 'react-copy-to-clipboard';
 import './BallEditor.css';
 import Logo from './speevers_logo.png';
 
@@ -99,7 +98,7 @@ const getItemStyle = (isDragging, draggableStyle) => ({
   width: '100%',
 
   // change background colour if dragging
-  background: isDragging ? 'lightgreen' : 'grey',
+  background: isDragging ? '#2277BA' : '#532E82',
 
   // styles we need to apply on draggables
   ...draggableStyle,
@@ -225,8 +224,8 @@ xmlObj.southSequences.sequences.map((seq, index) => {
 });
 xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
     
-    return createDownload(xmlFile, 'speevers.xml', 'text/xml');
-    // return this.setState({fileGenerationModalOpen: true, xmlFile: xmlFile});
+    createDownload(xmlFile, 'speevers.xml', 'text/xml');
+    return this.setState({fileGenerationModalOpen: true});
   }
 
   /* Settings Methods */
@@ -239,8 +238,6 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
 
   handleSettingsChange = (event) => {
     event.persist();
-
-    if (event.target.name ===! 'switch_time' && event.target.value.length === 1) return;
 
     const name = event.target.name,
       value = event.target.value;
@@ -273,7 +270,7 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
   addSequence = (ballPart) => {
     let stateObject = function() {
       let returnObj = this.state;
-      let currentNameValue = 'Color Joy' + (this.state[ballPart].sequences.length + 1);
+      let currentNameValue = 'Color Party' + (this.state[ballPart].sequences.length + 1);
 
       let objectSafeSequenceName = currentNameValue.replace(/\s+/g, '-').toLowerCase() + '-' + + Date.now();
       
@@ -612,43 +609,22 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
     const ballParts = ['northSequences', 'southSequences'];
 
     const FileCopyModal = () => (
-      <Modal open={this.state.fileGenerationModalOpen} onClose={() => this.setState({fileGenerationModalOpen: false})} size={'tiny'} >
+      <Modal basic open={this.state.fileGenerationModalOpen} onClose={() => this.setState({fileGenerationModalOpen: false})} >
         <Modal.Header>
-          Your file is ready!
+          All Done!
         </Modal.Header>
         <Modal.Content>
-          <p>Congratulations! What next, you ask? Simply copy your new creation, plug in your Jupiter ball, open the <code>speevers.xml</code> file on the Jupiter, highlight all the contents of the file and paste in your new creation instead! <span role="img" aria-label="smiley">🙌</span></p>
-
-          <CopyToClipboard text={this.state.xmlFile}
-            onCopy={() => this.setState({copiedFile: true})}>
-            <Button animated
-              className="copyBtn">
-              <Button.Content visible>Copy file to clipboard
-              </Button.Content>
-              <Button.Content hidden>
-                <Icon name='copy' />
-              </Button.Content>
-            </Button>
-          </CopyToClipboard>
-
-          {this.state.copiedFile ? 
-            <h4>File copied</h4> : ''}
-
-          <div><code>{this.state.xmlFile}</code></div>          
-
+          <Icon size="huge" name="check circle" /><br /><br /><br />
+          <p className="white-text">Congratulations! Your file should be finished downloading. If not <span className="green-text" onClick={this.createXMLFile}>click here to try again!</span> <span role="img" aria-label="smiley">🙌</span></p>               
         </Modal.Content>
       </Modal>
     )
 
     return (
       <div className="container">
-        <section>
-          <span className="appHeader">
-            <img src={Logo} alt="logo" />
-            <h2 className="name">Jupiter – Smart LED ball – color sequences editor</h2>
-            <h3 className="name">Hey {this.state.userName ? this.state.userName : ''}!</h3>
-          </span>            
+        <section>                     
           <Confirm
+            inverted
             open={this.state.confirmationOpen}
             onCancel={this.handleCopyCancel}
             header='Copy All Sequences'
@@ -681,14 +657,25 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
                 handleColorChange={this.handleColorChange}
               />
             </div> :
-            <div>                                       
+            <div>
+              <span className="appHeader">
+                <img src={Logo} alt="logo" />
+                <h2 className="name">Jupiter – Light Editor</h2>
+                <h3 className="name"><a target="_blank" rel="noopener noreferrer" href="https://speevers.com/speevers-products/click-n-play-modular-light-juggling/parts/heads/c-p-light-stardass">Get Your Jupiter Smart LED Ball Now!</a></h3>
+              </span>                                     
               <div className="sequenceContainer">            
                 {ballParts.map((ballPart, index) => (
                   <div className="columns" key={index}>
                     <header>
                       {ballPart === 'northSequences' ?
-                        <h2>North Pole</h2> :
-                        <h2>South Pole</h2>
+                        <div>                          
+                          <h2>North Pole</h2>
+                          <span className="northBall"><span className="top"></span><span className="bottom"></span></span>
+                        </div> :
+                        <div>                          
+                          <h2>South Pole</h2>
+                          <span className="southBall"><span className="top"></span><span className="bottom"></span></span>
+                        </div>                        
                       }
                       <span>
                         <Button onClick={() => this.addSequence(ballPart)} animated>
@@ -698,71 +685,73 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
                           </Button.Content>
                         </Button>
                         <Button onClick={() => this.showCopyConfirmation(ballPart)} animated>
-                          <Button.Content visible>Copy All To {ballPart === 'northSequences' ? 'South' : 'North'}</Button.Content>
+                          <Button.Content visible>Clone To {ballPart === 'northSequences' ? 'South' : 'North'}</Button.Content>
                           <Button.Content hidden>
                             <Icon name='copy' />
                           </Button.Content>
                         </Button>                    
                       </span><br />                  
                     </header>
-                    <DragDropContext onDragEnd={this.onSequenceDragEnd}>
-                      <Droppable droppableId={ballPart} direction="vertical">
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            style={getListStyle(snapshot.isDraggingOver)}
-                          >
-                            {this.state[ballPart].sequences && this.state[ballPart].sequences.length ? 
-                              this.state[ballPart].sequences.map((sequence, index) => (
-                                <Draggable key={index} draggableId={index} index={index}>
-                                  {(provided, snapshot) => (
-                                    <div className="full-width">
-                                      <div
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        style={getItemStyle(
-                                          snapshot.isDragging,
-                                          provided.draggableProps.style,
-                                        )}
-                                      >
-                                        <header className='sequenceHeader'>
-                                          <h3>{sequence.displayName}</h3>
-                                          <Icon className='closeBtn' name='close' onClick={() => this.removeSequence(sequence, index, ballPart)} /><br />                           
-                                          <span>
-                                            <Button onClick={() => this.editSequence(sequence)}  animated>
-                                              <Button.Content visible>Edit</Button.Content>
-                                              <Button.Content hidden>
-                                                <Icon name='pencil' />
-                                              </Button.Content>
-                                            </Button>
-                                            <Button className='copySequenceBtn' onClick={() => this.copySequence(sequence, index, ballPart)}  animated>
-                                              <Button.Content visible>Copy</Button.Content>
-                                              <Button.Content hidden>
-                                                <Icon name='copy' />
-                                              </Button.Content>
-                                            </Button>                                        
-                                          </span>      
-                                        </header>                                      
+                    <div className="white-border">
+                      <DragDropContext onDragEnd={this.onSequenceDragEnd}>
+                        <Droppable droppableId={ballPart} direction="vertical">
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              style={getListStyle(snapshot.isDraggingOver)}
+                            >
+                              {this.state[ballPart].sequences && this.state[ballPart].sequences.length ? 
+                                this.state[ballPart].sequences.map((sequence, index) => (
+                                  <Draggable key={index} draggableId={index} index={index}>
+                                    {(provided, snapshot) => (
+                                      <div className="full-width">
+                                        <div
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          {...provided.dragHandleProps}
+                                          style={getItemStyle(
+                                            snapshot.isDragging,
+                                            provided.draggableProps.style,
+                                          )}
+                                        >
+                                          <header className='sequenceHeader'>
+                                            <h3>{sequence.displayName}</h3>
+                                            <Icon className='closeBtn' name='close' onClick={() => this.removeSequence(sequence, index, ballPart)} /><br />                           
+                                            <span>
+                                              <Button onClick={() => this.editSequence(sequence)}  animated>
+                                                <Button.Content visible>Edit</Button.Content>
+                                                <Button.Content hidden>
+                                                  <Icon name='pencil' />
+                                                </Button.Content>
+                                              </Button>
+                                              <Button className='copySequenceBtn' onClick={() => this.copySequence(sequence, index, ballPart)}  animated>
+                                                <Button.Content visible>Copy</Button.Content>
+                                                <Button.Content hidden>
+                                                  <Icon name='copy' />
+                                                </Button.Content>
+                                              </Button>                                        
+                                            </span>      
+                                          </header>                                      
+                                        </div>
+                                        {provided.placeholder}
                                       </div>
-                                      {provided.placeholder}
-                                    </div>
-                                  )}
-                                </Draggable>
-                              )) :
-                              'Add A Sequence!'
-                            }
-                            {provided.placeholder}
-                          </div>
-                        )}
-                      </Droppable>
-                    </DragDropContext>
+                                    )}
+                                  </Draggable>
+                                )) :
+                                'No Sequences Yet'
+                              }
+                              {provided.placeholder}
+                            </div>
+                          )}
+                        </Droppable>
+                      </DragDropContext>
+                    </div>                    
                   </div>
                 ))}                                    
               </div>
 
               { this.state.northSequences.sequences.length && this.state.southSequences.sequences.length ?
-                <section><br /><br /><Button animated
+                <section className="generationArea"><br /><br /><Button animated 
                   onClick={this.createXMLFile}>
                   <Button.Content visible>Generate File And Play!
                   </Button.Content>
@@ -770,7 +759,7 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
                     <Icon name='download' />
                   </Button.Content>
                 </Button></section> : 
-                <section><br /><br />
+                <section className="generationArea"><br /><br />
                   <Popup
                     trigger={<Button animated>
                       <Button.Content visible>Generate File And Play!
@@ -789,8 +778,8 @@ xmlFile += `</PROGRAMS_SOUTH>\r\n</SPEEVERS_LIGHT_DATA>`;
                   />
                 </section>
               }
-              <Segment>
-                <Accordion>
+              <Segment inverted>
+                <Accordion inverted>
                   <Accordion.Title active={this.state.activeIndex === 1} index={1} onClick={() => this.handleSettingsAccordionClick(1)}>
                     <Icon name='dropdown' />
                     Settings

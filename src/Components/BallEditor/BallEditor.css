@@ -4,6 +4,40 @@
   color: #9f3a38 !important;
 }
 
+body {
+  background: rgb(27, 28, 29);
+  color: #fff;
+}
+
+html body label {
+   color: #fff !important;
+}
+
+html body input {
+  background-color: rgb(27, 28, 29) !important;
+  color: #fff !important;
+  border: 1px solid #fff !important;
+}
+
+.generationArea {
+  text-align: center;
+}
+
+.generationArea .button {
+  background-color: #8DC449 !important;
+  color: #fff;
+}
+
+::-moz-selection { 
+  background: #8DC449;
+  color: #fff
+}
+
+::selection { 
+  background: #8DC449;
+  color: #fff
+}
+
 .sequenceContainer {
   display: flex;
   align-self: flex-start;
@@ -36,6 +70,113 @@
   flex-direction: column;
   align-items: center;
   align-content: center;
+}
+
+.sequenceContainer header button {
+  background-color: #EC4337 !important;
+  color: #fff !important;
+}
+
+.white-border {
+  border: 1px solid #fff;
+  padding: 2% 1%;
+}
+
+.sequenceContainer header div:first-of-type {
+  margin: 0 0 2%;
+}
+
+.sequenceContainer header h2 {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  padding: 0 10px;
+}
+
+.sequenceContainer header .northBall, .sequenceContainer header .southBall {
+  width: 30px;
+  height: 30px;
+  vertical-align: middle;
+  -webkit-clip-path: circle(15px at center);
+  clip-path: circle(15px at center);
+  display: inline-block;
+  position: relative;
+  background: #000;
+}
+
+.sequenceContainer header .southBall .top {
+  height: 15px;
+  width: 27px;
+  background: #000;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+}
+
+.sequenceContainer header .southBall .bottom {
+  height: 12px;
+  width: 26px;
+  background: #fff;
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+  border-radius: 0 0 12px 12px;
+}
+
+.sequenceContainer header .northBall .bottom {
+  height: 15px;
+  width: 27px;
+  background: #000;
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+}
+
+.white-text {
+  color: #fff !important;
+}
+
+.modal .content i {
+  color: #fff !important;
+}
+
+.modal .content, .modal .header {
+  text-align: center;
+}
+
+.modal .header {
+  font-size: 40px !important;
+}
+
+.modal .content .green-text {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.modal .content p {
+  font-size: 28px;
+}
+
+.green-text {
+  color: #8DC449 !important;
+}
+
+.modal {
+  color: #000 !important;
+}
+
+.sequenceContainer header .northBall .top {
+  height: 12px;
+  width: 27px;
+  background: #fff;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  border-radius: 12px 12px 0 0;
 }
 
 .text-uppercase {
