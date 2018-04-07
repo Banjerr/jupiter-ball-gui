@@ -8,25 +8,28 @@ class Ball extends Component {
 
     let styleObject,
       nextStartingPoint,
-      colorToNotFade;
+      colorToNotFade,
+      colorToNotFadePerc;
 
     styleObject = `@-webkit-keyframes north {`;
 
     this.props.northColors.map((color, index) => {
       if (!color || !color.duration) return true;
 
-      nextStartingPoint = index > 1 ?
+      nextStartingPoint = index >= 1 ?
         (((color.duration / 1000) / this.props.northDuration) * 100) + nextStartingPoint :
         ((color.duration / 1000) / this.props.northDuration) * 100;
 
-      if (colorToNotFade) styleObject += `${nextStartingPoint - 1}% { background-color: ${colorToNotFade.color}; }`;
+      if (colorToNotFade) styleObject += `${colorToNotFadePerc - 1}% { background-color: ${colorToNotFade.color}; }`;
 
-      styleObject += `${index === 0 ? 0 : nextStartingPoint}% { background-color: ${color.color}; }`;
+      styleObject += `${index === 0 ? 0 : colorToNotFadePerc}% { background-color: ${color.color}; }`;
       
       color.fadeToNextColor ? 
         colorToNotFade = false :
         colorToNotFade = color;
 
+      colorToNotFadePerc = nextStartingPoint
+      
       return styleObject;
     });
 
@@ -42,24 +45,27 @@ class Ball extends Component {
 
     let styleObject,
         nextStartingPoint,
-        colorToNotFade;
+        colorToNotFade,
+        colorToNotFadePerc;
 
     styleObject = `@-webkit-keyframes south {`;
 
     this.props.southColors.map((color, index) => {
       if (!color || !color.duration) return true;
 
-      nextStartingPoint = index > 1 ?
+      nextStartingPoint = index >= 1 ?
         (((color.duration / 1000) / this.props.southDuration) * 100) + nextStartingPoint :
         ((color.duration / 1000) / this.props.southDuration) * 100;
 
-      if (colorToNotFade) styleObject += `${nextStartingPoint - 1}% { background-color: ${colorToNotFade.color}; }`;
+      if (colorToNotFade) styleObject += `${colorToNotFadePerc - 1}% { background-color: ${colorToNotFade.color}; }`;
 
-      styleObject += `${index === 0 ? 0 : nextStartingPoint}% { background-color: ${color.color}; }`
+      styleObject += `${index === 0 ? 0 : colorToNotFadePerc}% { background-color: ${color.color}; }`
 
       color.fadeToNextColor ? 
         colorToNotFade = false :
         colorToNotFade = color;
+
+      colorToNotFadePerc = nextStartingPoint
 
       return styleObject;
     });
